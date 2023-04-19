@@ -41,7 +41,7 @@ def get_section(file_path: str) -> list[list[dict]] | None:
     notes = None
     with open(file_path) as f:
         _notes = json.load(f)
-        notes = sorted(_notes, key=lambda note: note["y"])
+        notes = sorted(_notes, key=lambda note: (note["y"], note["x"]))
 
     if notes:
         notes_sim_press_section = divider(notes)
