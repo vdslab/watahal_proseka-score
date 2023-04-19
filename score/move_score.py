@@ -1,7 +1,8 @@
-from section_divide import get_section
-from pprint import pprint
 from collections import defaultdict
+from pprint import pprint
+
 import constant
+from section_divide import get_section
 
 
 def main():
