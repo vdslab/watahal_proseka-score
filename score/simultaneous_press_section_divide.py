@@ -34,15 +34,26 @@ def divider(notes: list[dict]) -> list[list[dict]]:
     return notes_sim_press_section
 
 
-def main():
+def get_section(file_path: str) -> list[list[dict]] | None:
+    """
+    ノーツJSONを，同時押しの区間で分けれられたものを作成
+    """
     notes = None
-    with open("score/data/m155_notes.json") as f:
+    with open(file_path) as f:
         _notes = json.load(f)
         notes = sorted(_notes, key=lambda note: note["y"])
 
     if notes:
         notes_sim_press_section = divider(notes)
-        pprint.pprint(notes_sim_press_section[2])
+        return notes_sim_press_section
+
+    return None
+
+
+def main():
+    notes_section = get_section("score/data/m155_notes.json")
+    if notes_section:
+        pprint.pprint(notes_section[2])
 
 
 if __name__ == "__main__":
