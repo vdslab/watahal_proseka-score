@@ -39,12 +39,26 @@ def main():
             "pushing": False,
         }
 
+        def can_push_note(hand: dict, note_index: int):
+            push_note = section[note_index]
+            if hand["pushing"]:
+                if (
+                    push_note["judge_type"] == "hold"
+                    and push_note["hold_type"] == "end"
+                ):
+                    return True
+
+                return False
+
+            return True
+
         def update_cost_from_index(
             section: list[list[dict]], hand: dict, note_index: int
         ) -> dict:
+            push_note = section[note_index]
             hand["notes"].append(note_index)
-            hand["cost"] += abs(hand["x"] - section[note_index]["x"])
-            hand["x"] = section[note_index]["x"]
+            hand["cost"] += abs(hand["x"] - push_note["x"])
+            hand["x"] = push_note["x"]
             return hand
 
         # 運指の作成
@@ -52,19 +66,26 @@ def main():
             if len(note[1]) >= 2:
                 # 単純に左右にある方をそれぞれに追加
                 left_note_index = note[1][0]
-                left = update_cost_from_index(section, left, left_note_index)
+                update_cost_from_index(section, left, left_note_index)
 
                 right_note_index = note[1][1]
-                right = update_cost_from_index(section, right, right_note_index)
+                update_cost_from_index(section, right, right_note_index)
             else:
                 # 移動距離をそれぞれ求めて，小さい方で取る
                 note_index = note[1][0]
                 left_move = abs(left["x"] - section[note_index]["x"])
                 right_move = abs(right["x"] - section[note_index]["x"])
+
                 if left_move <= right_move:
-                    left = update_cost_from_index(section, left, note_index)
+                    if can_push_note(left, note_index):
+                        update_cost_from_index(section, left, note_index)
+                    else:
+                        update_cost_from_index(section, right, note_index)
                 else:
-                    right = update_cost_from_index(section, right, note_index)
+                    if can_push_note(left, note_index):
+                        update_cost_from_index(section, right, note_index)
+                    else:
+                        update_cost_from_index(section, left, note_index)
         print(left)
         print(right)
         print()
