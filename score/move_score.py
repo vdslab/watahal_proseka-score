@@ -31,8 +31,13 @@ def main():
         #     print(i, note)
 
         # 左右の運指
-        left = {"x": 0, "notes": [], "cost": 0}
-        right = {"x": constant.MAX_KEYBOAD_COUNT, "notes": [], "cost": 0}
+        left = {"x": 0, "notes": [], "cost": 0, "pushing": False}
+        right = {
+            "x": constant.MAX_KEYBOAD_COUNT,
+            "notes": [],
+            "cost": 0,
+            "pushing": False,
+        }
 
         def update_cost_from_index(
             section: list[list[dict]], hand: dict, note_index: int

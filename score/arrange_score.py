@@ -1,6 +1,8 @@
 import json
 from pprint import pprint
 
+import constant
+
 notes_explain = [
     "y",
     "type",
@@ -11,14 +13,11 @@ notes_explain = [
     "x",
     "width",
 ]
+
 judge_types = {
-    0: "off",
-    1: "flick",
-    3: "flick_left",
-    4: "flick_right",
-    5: "push",
-    6: "hold",
+    i: x for x, i in zip(constant.JUDGLE_TYPES, range(len(constant.JUDGLE_TYPES)))
 }
+
 hold_types = {0: "none", 1: "start", 2: "end", 3: "middle"}
 types = {1: "normal", 3: "long"}
 
@@ -32,8 +31,6 @@ def main():
 
     for _note in _score["notes"]:
         note = dict()
-        # print(_note)
-        # print(notes_explain)
         for n, key in zip(_note, notes_explain):
             if key == "is_yellow":
                 note[key] = n != 1
