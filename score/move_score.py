@@ -59,7 +59,6 @@ def main():
             hand["notes"].append(note_index)
             hand["cost"] += abs(hand["x"] - push_note["x"])
             hand["x"] = push_note["x"]
-            return hand
 
         # 運指の作成
         for note in notes_index_by_y.items():
