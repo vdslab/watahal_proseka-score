@@ -58,7 +58,7 @@ def main():
                 cnt = x + 1 if is_continue else x
                 return cnt + 1 if y == hand["notes"][-1] else cnt
 
-            continue_cnt = reduce(reduce_func, hand["notes"], 0)
+            continue_cnt = reduce(reduce_func, hand["notes"][::-1], 0)
             cost = (
                 move_cost * (CONTINUOUS_COST_RATE**continue_cnt)
                 if is_continue
