@@ -39,6 +39,16 @@ def main():
             "pushing": False,
         }
 
+        PUSHED_COST = 100
+
+        def get_move_dist_cost(hand: dict, note_index: int):
+            cost = abs(hand["x"] - section[note_index]["x"])
+            return cost if can_push_note(hand, note_index) else PUSHED_COST
+
+        def get_cost(hand: dict, note_index: int):
+            push_note = section[note_index]
+            move_dist_cost = get_move_dist_cost(hand, note_index)
+
         def can_push_note(hand: dict, note_index: int):
             push_note = section[note_index]
             if hand["pushing"]:
