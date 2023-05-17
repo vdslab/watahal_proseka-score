@@ -1,4 +1,5 @@
 from collections import defaultdict
+from functools import reduce
 from pprint import pprint
 
 import constant
@@ -40,14 +41,35 @@ def main():
         }
 
         PUSHED_COST = 100
+        CONTINUOUS_COST_RATE = 1.2
 
         def get_move_dist_cost(hand: dict, note_index: int):
             cost = abs(hand["x"] - section[note_index]["x"])
             return cost if can_push_note(hand, note_index) else PUSHED_COST
 
+        def get_continuous_cost(hand: dict, note_index: int):
+            move_cost = get_move_dist_cost(hand, note_index)
+            is_continue = len(hand["notes"]) > 0 and hand["notes"][-1] == note_index - 1
+
+            def reduce_func(x, y):
+                is_continue = (
+                    x + 1 < len(hand["notes"]) and hand["notes"][x + 1] == y + 1
+                )
+                cnt = x + 1 if is_continue else x
+                return cnt + 1 if y == hand["notes"][-1] else cnt
+
+            continue_cnt = reduce(reduce_func, hand["notes"], 0)
+            cost = (
+                move_cost * (CONTINUOUS_COST_RATE**continue_cnt)
+                if is_continue
+                else move_cost
+            )
+            return cost
+
         def get_cost(hand: dict, note_index: int):
             push_note = section[note_index]
             move_dist_cost = get_move_dist_cost(hand, note_index)
+            continuous_cost = get_continuous_cost(hand, note_index)
 
         def can_push_note(hand: dict, note_index: int):
             push_note = section[note_index]
