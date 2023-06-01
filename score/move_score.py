@@ -96,7 +96,7 @@ def _get_lr_fingering(section, notes_index_by_y):
     return left, right
 
 
-def get_fingering(notes_json_file_relative_path: str) -> dict[list]:
+def get_fingering(notes_json_file_relative_path: str) -> list[dict]:
     """
     同時押しと同時押しの区間において，運指を，左右どちらでとるかを移動距離ベースで作成する
 
@@ -109,7 +109,7 @@ def get_fingering(notes_json_file_relative_path: str) -> dict[list]:
     """
 
     notes_section = get_section(notes_json_file_relative_path)
-    fingering = {"left": [], "right": []}
+    fingering: list[dict] = []
 
     for i, section in enumerate(notes_section):
         # --- デバッグ用の区間調整
@@ -118,7 +118,7 @@ def get_fingering(notes_json_file_relative_path: str) -> dict[list]:
         # if i >= 8:
         #     break
         # ---
-        print(section)
+        # print(section)
         # y座標ごとのノーツIDを格納
         # 中間点は削除
         notes_index_by_y = defaultdict(list[int])
@@ -131,21 +131,21 @@ def get_fingering(notes_json_file_relative_path: str) -> dict[list]:
 
         # 左右の運指
         left, right = _get_lr_fingering(section, notes_index_by_y)
-        fingering["left"].append(left)
-        fingering["right"].append(right)
+        fingering.append({"left": left, "right": right})
 
         # --- デバッグ用
         # 出力確認
-        print("i:", i)
-        print("left")
-        print(left)
-        print("right")
-        print(right)
-        print()
+        # print("i:", i)
+        # print("left")
+        # print(left)
+        # print("right")
+        # print(right)
+        # print()
         # 区間調整
         # if i >= 64:
-        #     break
+        break
         # ---
+    return fingering
 
 
 def main():
