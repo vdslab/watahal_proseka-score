@@ -143,13 +143,13 @@ def get_fingering(notes_json_file_relative_path: str) -> list[dict]:
         # print()
         # 区間調整
         # if i >= 64:
-        break
+        # break
         # ---
     return fingering
 
 
 def main():
-    get_fingering("score/data/m155_notes.json")
+    pprint(get_fingering("score/data/m155_notes-test.json"))
 
 
 if __name__ == "__main__":

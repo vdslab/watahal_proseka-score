@@ -10,3 +10,12 @@ JUDGLE_TYPES = [
     "push",
     "hold",
 ]
+
+NOTES_TYPES = [
+    "normal",
+    "yellow",
+    "hold",
+    "flick",
+]
+
+# class
