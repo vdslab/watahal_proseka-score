@@ -11,8 +11,6 @@ def print_(str):
 
 
 def _get_section_feature_vector(section: list[dict]):
-    print("section feature vector")
-    # pprint(section)
     # 区間特徴
     duration = section[-1]["y"] - section[0]["y"]
 
@@ -44,12 +42,14 @@ def _get_section_feature_vector(section: list[dict]):
         numpy.var(consecutive_same_x_count_list),
     ]
 
-    print_(f"{duration=}")
-    print_(f"{note_types_count=}")
-    print_(f"{note_types_count_list=}")
-    print_(f"{x_right_shift=}")
-    print_(f"{consecutive_same_x_count_list=}")
-    print_(f"{consecutive_same_x_average_variance=}")
+    if __debug__:
+        print("section feature vector")
+        print_(f"{duration=}")
+        print_(f"{note_types_count=}")
+        print_(f"{note_types_count_list=}")
+        print_(f"{x_right_shift=}")
+        print_(f"{consecutive_same_x_count_list=}")
+        print_(f"{consecutive_same_x_average_variance=}")
 
     return (
         [duration]
@@ -60,23 +60,32 @@ def _get_section_feature_vector(section: list[dict]):
 
 
 def _get_fingering_feature_vector(fingering: dict):
-    print("fingering feature vector")
-    print(fingering)
+
     # 運指特徴
     hand_notes_count_balance = 0
     distances_between_notes_list = []
     left = fingering["left"]
     # right
+
+    if __debug__:
+        print_("fingering feature vector")
+        print_(fingering)
+
     return []
 
 
 def _get_feature_vector(section: list[dict], fingering: dict):
-    print("feature vector")
     section_feature_vector = _get_section_feature_vector(section)
-    print("get section feature vector: ", section_feature_vector)
     fingering_feature_vector = _get_fingering_feature_vector(fingering)
-    print("get fingering_feature_vector: ", fingering_feature_vector)
-    print("result: ", section_feature_vector + fingering_feature_vector)
+
+    if __debug__:
+        print_("feature vector")
+        print_(f"get section feature vector: {section_feature_vector}")
+        print_(f"get fingering_feature_vector: {fingering_feature_vector}")
+        print_(
+            f"result: {section_feature_vector + fingering_feature_vector}",
+        )
+
     return section_feature_vector + fingering_feature_vector
 
 
