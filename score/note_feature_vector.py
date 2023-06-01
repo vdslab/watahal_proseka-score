@@ -3,17 +3,27 @@ from pprint import pprint
 from section_divide import get_section
 
 
-def _get_feature_vector(section: list[dict]):
-    # 曲特徴
-    duration = 0
+def _get_section_feature_vector(section: list[dict]):
+    # 区間特徴
+    print(section[0])
+    duration = section[0]
     note_density = 0
     note_types_count = dict()
     # x_shift：右にだんだんとずれていく=>値が大きい
     x_shift = 0
     consecutive_same_x_count_list = []
+
+
+def _get_fingering_feature_vector(hand: dict):
     # 運指特徴
     hand_balance = 0
     distances_between_notes_list = []
+
+
+def _get_feature_vector(section: list[dict], hand: dict):
+    section_feature_vector = _get_section_feature_vector(section)
+    fingering_feature_vector = _get_fingering_feature_vector(hand)
+    return section_feature_vector + fingering_feature_vector
 
 
 def get_feature_vectors(notes_json_file_relative_path: str):
