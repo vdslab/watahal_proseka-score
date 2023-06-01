@@ -90,6 +90,7 @@ def get_feature_vectors(notes_json_file_relative_path: str):
     for (section, fingering) in zip(notes_sections, fingerings):
         vector = _get_feature_vector(section, fingering)
         feature_vectors.append(vector)
+        break
 
     return feature_vectors
 
