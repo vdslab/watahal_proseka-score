@@ -8,7 +8,7 @@ def _get_feature_vector(section: list[dict]):
 
 
 def get_feature_vectors(notes_json_file_relative_path: str):
-    notes_sections = get_section("score/data/m155_notes.json")
+    notes_sections = get_section(notes_json_file_relative_path)
     feature_vectors = []
     for section in notes_sections:
         vector = _get_feature_vector(section)
@@ -18,5 +18,5 @@ def get_feature_vectors(notes_json_file_relative_path: str):
 
 
 if __name__ == "__main__":
-    feature_vectors = get_feature_vectors()
+    feature_vectors = get_feature_vectors("score/data/m155_notes.json")
     pprint(feature_vectors)
