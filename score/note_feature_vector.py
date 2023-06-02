@@ -59,24 +59,49 @@ def _get_section_feature_vector(section: list[dict]):
     )
 
 
-def _get_fingering_feature_vector(fingering: dict):
-
+def _get_fingering_feature_vector(section: list[dict], fingering: dict):
     # 運指特徴
+    # left divied by right ; left/right
     hand_notes_count_balance = 0
     distances_between_notes_list = []
-    left = fingering["left"]
-    # right
+
+    left: list = fingering["left"]
+    right: list = fingering["right"]
+
+    left_note_count = 0
+    right_note_count = 0
+    # print_(left)
+    # for l, r in zip(left, right):
+    left_note_count += len(left["notes"])
+    right_note_count += len(right["notes"])
+
+    for li, lnote_index in enumerate(left["notes"]):
+        for ri in range(max(0, li - 1), min(len(right["notes"]), li + 2)):
+            distances_between_notes_list.append(
+                abs(section[lnote_index]["x"] - section[right["notes"][ri]]["x"])
+            )
+    hand_notes_count_balance = left_note_count / right_note_count
+    distances_between_notes_average_variance = [
+        numpy.average(distances_between_notes_list),
+        numpy.var(distances_between_notes_list),
+    ]
 
     if __debug__:
         print_("fingering feature vector")
         print_(fingering)
+        print_(f"{hand_notes_count_balance=}")
+        print_(f"{distances_between_notes_list=}")
+        print_(f"{distances_between_notes_average_variance=}")
+        print_(
+            f"fingering feature vector: {[hand_notes_count_balance] + distances_between_notes_average_variance}"
+        )
 
-    return []
+    return [hand_notes_count_balance] + distances_between_notes_average_variance
 
 
 def _get_feature_vector(section: list[dict], fingering: dict):
     section_feature_vector = _get_section_feature_vector(section)
-    fingering_feature_vector = _get_fingering_feature_vector(fingering)
+    fingering_feature_vector = _get_fingering_feature_vector(section, fingering)
 
     if __debug__:
         print_("feature vector")
@@ -92,8 +117,6 @@ def _get_feature_vector(section: list[dict], fingering: dict):
 def get_feature_vectors(notes_json_file_relative_path: str):
     notes_sections = get_section(notes_json_file_relative_path)
     fingerings = get_fingering(notes_json_file_relative_path)
-    # pprint(notes_sections[0])
-    # pprint(fingerings)
 
     feature_vectors = []
     for (section, fingering) in zip(notes_sections, fingerings):
@@ -106,6 +129,20 @@ def get_feature_vectors(notes_json_file_relative_path: str):
     return feature_vectors
 
 
+def round_decimal(num, digit: int):
+    print_(f"{num=}")
+    print_(f"{(10**digit)=}")
+    print_(f"{(num * (10**digit) // (10**digit))=}")
+    return num * (10**digit) // (10**digit)
+
+
 if __name__ == "__main__":
     feature_vectors = get_feature_vectors("score/data/m155_notes-test.json")
+
+    def round_decimal(num, digit: int):
+        return int(num * (10**digit)) / (10**digit)
+
+    for i, vector in enumerate(feature_vectors):
+        feature_vectors[i] = list(map(lambda x: round_decimal(x, 3), vector))
+
     pprint(feature_vectors)
