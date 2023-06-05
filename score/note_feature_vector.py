@@ -126,23 +126,15 @@ def get_feature_vectors(notes_json_file_relative_path: str):
         if __debug__:
             break
 
-    return feature_vectors
-
-
-def round_decimal(num, digit: int):
-    print_(f"{num=}")
-    print_(f"{(10**digit)=}")
-    print_(f"{(num * (10**digit) // (10**digit))=}")
-    return num * (10**digit) // (10**digit)
-
-
-if __name__ == "__main__":
-    feature_vectors = get_feature_vectors("score/data/m155_notes-test.json")
-
     def round_decimal(num, digit: int):
         return int(num * (10**digit)) / (10**digit)
 
     for i, vector in enumerate(feature_vectors):
         feature_vectors[i] = list(map(lambda x: round_decimal(x, 3), vector))
 
+    return feature_vectors
+
+
+if __name__ == "__main__":
+    feature_vectors = get_feature_vectors("score/data/m155_notes-test.json")
     pprint(feature_vectors)
