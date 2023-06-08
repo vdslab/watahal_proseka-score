@@ -1,5 +1,5 @@
-import pprint
 import json
+import pprint
 
 
 def divider(notes: list[dict]) -> list[list[dict]]:
@@ -52,8 +52,11 @@ def get_section(file_path: str) -> list[list[dict]] | None:
 
 def main():
     notes_section = get_section("score/data/m155_notes.json")
-    if notes_section:
-        pprint.pprint(notes_section[2])
+    # pprint.pprint(notes_section)
+    for section in notes_section:
+        print(len(section))
+    # if notes_section:
+    #     pprint.pprint(notes_section[2])
 
 
 if __name__ == "__main__":
