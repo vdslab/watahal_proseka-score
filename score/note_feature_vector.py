@@ -61,7 +61,7 @@ def _get_section_feature_vector(section: list[dict]):
 
 def _get_fingering_feature_vector(section: list[dict], fingering: dict):
     # 運指特徴
-    # left divied by right ; left/right
+    # left divided by right ; left/right
     hand_notes_count_balance = 0
     distances_between_notes_list = []
 
