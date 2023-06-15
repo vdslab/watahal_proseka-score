@@ -1,8 +1,7 @@
-from score.constant import MAX_KEYBOARD_COUNT
+from constant import MAX_KEYBOARD_COUNT
 
 
 class FingeringHand:
-    # left = {"x": 0, "notes": [], "cost": 0, "pushing": False}
     def __init__(self) -> None:
         self._x = 0
         self.notes = []
