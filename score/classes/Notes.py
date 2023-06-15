@@ -1,6 +1,4 @@
-from classes.types.HoldType import HoldType
-from classes.types.JudgeType import JudgeType
-from classes.types.NotesType import NotesType
+from classes.types import HoldType, JudgeType, NotesType
 
 
 class Note:

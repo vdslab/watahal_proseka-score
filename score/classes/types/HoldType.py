@@ -1,6 +1,6 @@
 from enum import auto
 
-from classes.types.TypeABC import TypeABC
+from .TypeABC import TypeABC
 
 
 class HoldType(TypeABC):

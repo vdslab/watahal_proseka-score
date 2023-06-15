@@ -1,6 +1,6 @@
 from enum import Enum, auto
 
-from classes.types.TypeABC import TypeABC
+from .TypeABC import TypeABC
 
 
 class NotesType(TypeABC):
