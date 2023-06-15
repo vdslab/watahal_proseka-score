@@ -1,3 +1,6 @@
+from score.classes.NotesType import NotesType
+
+
 class Note:
     def __init__(
         self,
@@ -5,7 +8,7 @@ class Note:
         x: int,
         y: int,
         width: int,
-        type,
+        type: NotesType,
         judge_type,
         is_yellow=False,
         hold_type=None,
