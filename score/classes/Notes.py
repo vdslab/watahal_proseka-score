@@ -24,5 +24,6 @@ class Note:
         self.hold_type = hold_type
         self.hole = hole
 
+    @property
     def is_hold(self):
         return self.type == NotesType.HOLD
