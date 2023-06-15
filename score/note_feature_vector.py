@@ -1,3 +1,4 @@
+import json
 from pprint import pprint
 
 import constant
@@ -114,23 +115,23 @@ def _get_feature_vector(section: list[dict], fingering: dict):
     return section_feature_vector + fingering_feature_vector
 
 
+import math
+
+
 def get_feature_vectors(notes_json_file_relative_path: str):
     notes_sections = get_section(notes_json_file_relative_path)
     fingerings = get_fingering(notes_json_file_relative_path)
 
     feature_vectors = []
-    for (section, fingering) in zip(notes_sections, fingerings):
+    for section, fingering in zip(notes_sections, fingerings):
         vector = _get_feature_vector(section, fingering)
         feature_vectors.append(vector)
 
         if __debug__:
             break
 
-    def round_decimal(num, digit: int):
-        return int(num * (10**digit)) / (10**digit)
-
     for i, vector in enumerate(feature_vectors):
-        feature_vectors[i] = list(map(lambda x: round_decimal(x, 3), vector))
+        feature_vectors[i] = list(map(lambda x: round(x, 3), vector))
 
     return feature_vectors
 
@@ -138,3 +139,14 @@ def get_feature_vectors(notes_json_file_relative_path: str):
 if __name__ == "__main__":
     feature_vectors = get_feature_vectors("score/data/m155_notes-test.json")
     pprint(feature_vectors)
+
+    save_dir = "score/data"
+    save_file_name = "feature_vector.json"
+    save_path = (
+        save_dir + save_file_name
+        if save_dir[-1] == "/"
+        else f"{save_dir}/{save_file_name}"
+    )
+
+    with open(save_path, "w") as f:
+        json.dump(feature_vectors, f, indent=2, ensure_ascii=False)
