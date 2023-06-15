@@ -25,4 +25,4 @@ class Note:
         self.hole = hole
 
     def is_hold(self):
-        pass
+        return self.type == NotesType.HOLD
