@@ -1,4 +1,4 @@
-from score.classes.NotesType import NotesType
+from score.classes.enums.NotesType import NotesType
 
 
 class Note:
