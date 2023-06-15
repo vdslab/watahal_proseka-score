@@ -25,10 +25,10 @@ class Note:
         self.hole = hole
 
     def __str__(self) -> str:
-        describe = "Note describe"
-        pos = f"pos: ({self.x}, {self.y})"
+        describe = "Note describe:"
+        pos = f"pos: (x, y) = ({self.x}, {self.y})"
         width = f"width: {self.width}"
-        types = f"note type: {self.type} {'' if not self.is_hold else  f'{self.hold_type}: hole {self.hole}'}"
+        types = f"note type: {self.type.name} {'' if not self.is_hold else  f'{self.hold_type.name}: hole {self.hole}'}"
 
         return "\n\t".join([describe, pos, width, types])
 
