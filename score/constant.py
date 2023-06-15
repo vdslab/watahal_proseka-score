@@ -18,4 +18,13 @@ NOTES_TYPES = [
     "flick",
 ]
 
-# class
+NOTES_EXPLAIN = [
+    "y",
+    "type",
+    "hole",
+    "hold_type",
+    "is_yellow",
+    "judge_type",
+    "x",
+    "width",
+]

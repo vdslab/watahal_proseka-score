@@ -1,23 +1,12 @@
 import json
 from pprint import pprint
 
-import constant
 from classes.Notes import Note
 from classes.types import HoldType, JudgeType, NotesType
-
-notes_explain = [
-    "y",
-    "type",
-    "hole",
-    "hold_type",
-    "is_yellow",
-    "judge_type",
-    "x",
-    "width",
-]
+from constant import NOTES_EXPLAIN
 
 notes_explain_to_index = {
-    ne: i for i, ne in zip(range(len(notes_explain)), notes_explain)
+    ne: i for i, ne in zip(range(len(NOTES_EXPLAIN)), NOTES_EXPLAIN)
 }
 
 
@@ -35,29 +24,30 @@ def main():
         _score = json.load(f)
 
     for _note in _score["notes"]:
-        print(_note)
-        print(notes_explain_to_index)
         x = _note[notes_explain_to_index["x"]]
         y = _note[notes_explain_to_index["y"]]
         width = _note[notes_explain_to_index["width"]]
+        # type
         is_yellow = _note[notes_explain_to_index["is_yellow"]] != 1
         _type_id = _note[notes_explain_to_index["type"]]
         type_id = _type_id + 1 if is_yellow else _type_id
+
         judge_type_id = _note[notes_explain_to_index["judge_type"]]
-        nn = Note(
+
+        note = Note(
             x=x,
             y=y,
             width=width,
             type=NotesType(type_id),
             judge_type=JudgeType(judge_type_id),
         )
-        if nn.is_hold:
+        if note.is_hold:
             hold_type_id = _note[notes_explain_to_index["hold_type"]]
             hole = _note[notes_explain_to_index["hole"]]
-            nn.hold_type = HoldType[hold_type_id]
-            nn.hold_type = hole
+            note.hold_type = HoldType[hold_type_id]
+            note.hold_type = hole
 
-        print(nn)
+        print(note)
 
         break
         notes.append(note)
