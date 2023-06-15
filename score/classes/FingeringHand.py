@@ -1,3 +1,5 @@
+from classes.Notes import Note
+from classes.types.HoldType import HoldType
 from constant import MAX_KEYBOARD_COUNT
 
 
@@ -17,5 +19,11 @@ class FingeringHand:
 
         self.cost = abs(self._x - to_x)
 
-    def can_push(self) -> bool:
-        pass
+    def can_push(self, note: Note) -> bool:
+        if self.pushing:
+            if note.is_hold() and note.hold_type is HoldType.END:
+                return True
+
+            return False
+
+        return False
