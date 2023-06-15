@@ -1,3 +1,4 @@
+from classes.types.HoldType import HoldType
 from classes.types.NotesType import NotesType
 
 
@@ -11,7 +12,7 @@ class Note:
         type: NotesType,
         judge_type,
         is_yellow=False,
-        hold_type=None,
+        hold_type: HoldType = None,
         hole=0
     ) -> None:
         self.x = x
