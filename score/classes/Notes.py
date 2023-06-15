@@ -29,8 +29,9 @@ class Note:
         pos = f"pos: (x, y) = ({self.x}, {self.y})"
         width = f"width: {self.width}"
         types = f"note type: {self.type.name} {'' if not self.is_hold else  f'{self.hold_type.name}: hole {self.hole}'}"
+        judge = f"how judge: {self.judge_type.name}"
 
-        return "\n\t".join([describe, pos, width, types])
+        return "\n\t".join([describe, pos, width, types, judge])
 
     @property
     def is_hold(self):
