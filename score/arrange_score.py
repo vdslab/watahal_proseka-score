@@ -15,7 +15,7 @@ notes_explain = [
 ]
 
 judge_types = {
-    i: x for x, i in zip(constant.JUDGLE_TYPES, range(len(constant.JUDGLE_TYPES)))
+    i: x for x, i in zip(constant.JUDGE_TYPES, range(len(constant.JUDGE_TYPES)))
 }
 
 hold_types = {0: "none", 1: "start", 2: "end", 3: "middle"}
