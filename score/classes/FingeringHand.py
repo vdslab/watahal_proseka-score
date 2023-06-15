@@ -5,10 +5,10 @@ from constant import MAX_KEYBOARD_COUNT
 
 class FingeringHand:
     def __init__(self) -> None:
-        self._x = 0
-        self.notes = []
-        self._cost = 0
-        self.pushing = False
+        self._x: int = 0
+        self.notes: list[Note] = []
+        self._cost: float = 0
+        self.pushing: bool = False
 
     @property
     def x(self):
@@ -39,7 +39,9 @@ class FingeringHand:
     @cost.setter
     def add_cost(self, cost: int) -> None:
         if 0 < cost:
-            print(f"[WARNING] get cost:{cost} is under 0. cannot add cost. please 0 or more number")
+            print(
+                f"[WARNING] get cost:{cost} is under 0. cannot add cost. please 0 or more number"
+            )
             return
         self.cost += cost
 
