@@ -13,7 +13,7 @@ class Note:
         judge_type,
         is_yellow=False,
         hold_type: HoldType = None,
-        hole=0
+        hole=0,
     ) -> None:
         self.x = x
         self.y = y
@@ -23,6 +23,14 @@ class Note:
         self.is_yellow = is_yellow
         self.hold_type = hold_type
         self.hole = hole
+
+    def __str__(self) -> str:
+        describe = "Note describe"
+        pos = f"pos: ({self.x}, {self.y})"
+        width = f"width: {self.width}"
+        types = f"note type: {self.type} {'' if not self.is_hold else  f'{self.hold_type}: hole {self.hole}'}"
+
+        return "\n\t".join([describe, pos, width, types])
 
     @property
     def is_hold(self):
