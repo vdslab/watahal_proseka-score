@@ -1,15 +1,3 @@
-notes_explain = [
-    "y",
-    "type",
-    "hole",
-    "hold_type",
-    "is_yellow",
-    "judge_type",
-    "x",
-    "width",
-]
-
-
 class Note:
     def __init__(
         self,
