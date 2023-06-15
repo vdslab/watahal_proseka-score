@@ -32,6 +32,13 @@ class Note:
 
         return "\n\t".join([describe, pos, width, types, judge])
 
+    def __eq__(self, __value: object) -> bool:
+        return (
+            __value is not None
+            and type(self) == type(__value)
+            and self.__dict__ == __value.__dict__
+        )
+
     def to_dict(self) -> dict:
         return {
             "x": self.x,
