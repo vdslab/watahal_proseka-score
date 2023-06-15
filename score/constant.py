@@ -1,7 +1,7 @@
-MAX_KEYBOAD_COUNT = 12
+MAX_KEYBOARD_COUNT = 12
 
 # judge_types
-JUDGLE_TYPES = [
+JUDGE_TYPES = [
     "off",
     "flick_up",
     "flick_down",

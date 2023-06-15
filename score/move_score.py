@@ -10,7 +10,7 @@ def _get_lr_fingering(section, notes_index_by_y):
     # 左右の運指
     left = {"x": 0, "notes": [], "cost": 0, "pushing": False}
     right = {
-        "x": constant.MAX_KEYBOAD_COUNT,
+        "x": constant.MAX_KEYBOARD_COUNT,
         "notes": [],
         "cost": 0,
         "pushing": False,
