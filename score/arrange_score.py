@@ -2,6 +2,8 @@ import json
 from pprint import pprint
 
 import constant
+from classes.Notes import Note
+from classes.types import HoldType, JudgeType, NotesType
 
 notes_explain = [
     "y",
@@ -41,39 +43,53 @@ def main():
         else f"{save_dir}/{save_file_name}"
     )
 
-    notes: list[dict] = []
+    notes_dict_for_json: list[dict] = []
 
     _score = None
     with open("score/data/m155.json", "r") as f:
         _score = json.load(f)
 
     for _note in _score["notes"]:
-        note = dict()
+        note_dict = dict()
+        notes: list[Note] = []
         for n, key in zip(_note, notes_explain):
             if key == "is_yellow":
-                note[key] = n != 1
+                note_dict[key] = n != 1
             elif key == "judge_type":
-                note[key] = judge_types[n]
+                note_dict[key] = judge_types[n]
             elif key == "hold_type":
-                note[key] = hold_types[n]
+                note_dict[key] = hold_types[n]
             elif key == "type":
-                note[key] = types[n]
+                note_dict[key] = types[n]
             else:
-                note[key] = n
-        # print(note)
-        # TODO enumでなんとかできてほしい
-        # if note["is_yellow"]:
-        #     note["type"] = "yellow"
-        # TODO これもenumでなんとかできてほしい
-        if "flick" in note["judge_type"]:
-            note["type"] = "flick"
+                note_dict[key] = n
+        if note_dict["is_yellow"]:
+            note_dict["type"] = "yellow"
+        if "flick" in note_dict["judge_type"]:
+            note_dict["type"] = "flick"
+
+        note = Note(
+            x=note_dict["x"],
+            y=note_dict["y"],
+            width=note_dict["width"],
+            type=NotesType[note_dict["type"].upper()],
+            judge_type=JudgeType[note_dict["judge_type"].upper()],
+        )
+        if note.is_hold:
+            note.hold_type = HoldType[note_dict["hold_type"].upper()]
+            note.hole = note_dict["hole"]
+
+        assert note_dict == note.to_dict(), "not to dict error"
+
+        break
+        notes_dict_for_json.append(note_dict)
         notes.append(note)
 
     # pprint(notes[:10])
 
     # score = dict()
-    with open(save_path, "w") as f:
-        json.dump(notes, f, indent=2, ensure_ascii=False)
+    # with open(save_path, "w") as f:
+    #     json.dump(notes, f, indent=2, ensure_ascii=False)
 
 
 if __name__ == "__main__":
