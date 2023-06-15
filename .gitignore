@@ -131,3 +131,4 @@ dmypy.json
 _*.py
 _*.json
 _*/
+!__init__*
