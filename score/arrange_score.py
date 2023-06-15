@@ -3,6 +3,7 @@ from pprint import pprint
 
 from classes.Notes import Note
 from classes.types import HoldType, JudgeType, NotesType
+from classes.types.HoldType import HoldType
 from constant import NOTES_EXPLAIN
 
 notes_explain_to_index = {
@@ -10,20 +11,17 @@ notes_explain_to_index = {
 }
 
 
-def main():
-    save_dir = "score/data"
-    save_file_name = "m155_notes-test.json"
-    save_path = (
-        save_dir + save_file_name
-        if save_dir[-1] == "/"
-        else f"{save_dir}/{save_file_name}"
-    )
+def get_notes_score(file_path: str) -> list[Note]:
+    score = None
+    with open(file_path, "r") as f:
+        score = json.load(f)
 
-    _score = None
-    with open("score/data/m155.json", "r") as f:
-        _score = json.load(f)
+    if score is None:
+        return None
 
-    for _note in _score["notes"]:
+    notes: list[Note] = []
+
+    for _note in score["notes"]:
         x = _note[notes_explain_to_index["x"]]
         y = _note[notes_explain_to_index["y"]]
         width = _note[notes_explain_to_index["width"]]
@@ -44,19 +42,29 @@ def main():
         if note.is_hold:
             hold_type_id = _note[notes_explain_to_index["hold_type"]]
             hole = _note[notes_explain_to_index["hole"]]
-            note.hold_type = HoldType[hold_type_id]
-            note.hold_type = hole
+            note.hold_type = HoldType(hold_type_id)
+            note.hole = hole
 
-        print(note)
-
-        break
         notes.append(note)
 
-    # pprint(notes[:10])
+    return notes
 
-    # score = dict()
-    # with open(save_path, "w") as f:
-    #     json.dump(notes, f, indent=2, ensure_ascii=False)
+
+def main():
+    save_dir = "score/data"
+    save_file_name = "_notes-test.json"
+    save_path = (
+        save_dir + save_file_name
+        if save_dir[-1] == "/"
+        else f"{save_dir}/{save_file_name}"
+    )
+
+    score_file_path = "score/data/m155.json"
+    notes_score = get_notes_score(score_file_path)
+    notes_score_dict = [note.to_dict() for note in notes_score]
+
+    with open(save_path, "w") as f:
+        json.dump(notes_score_dict, f, indent=2, ensure_ascii=False)
 
 
 if __name__ == "__main__":
