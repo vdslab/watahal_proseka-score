@@ -1,4 +1,4 @@
-from score.classes.types.NotesType import NotesType
+from classes.types.NotesType import NotesType
 
 
 class Note:
