@@ -16,6 +16,10 @@ notes_explain = [
     "width",
 ]
 
+notes_explain_to_index = {
+    ne: i for i, ne in zip(range(len(notes_explain)), notes_explain)
+}
+
 judge_types = {
     i: x for x, i in zip(constant.JUDGE_TYPES, range(len(constant.JUDGE_TYPES)))
 }
@@ -78,8 +82,36 @@ def main():
         if note.is_hold:
             note.hold_type = HoldType[note_dict["hold_type"].upper()]
             note.hole = note_dict["hole"]
-
         assert note_dict == note.to_dict(), "not to dict error"
+        assert note.to_dict() != note.__dict__, "own dict and __dict__ is same"
+
+        print(_note)
+        print(note_dict)
+        print(notes_explain_to_index)
+        x = _note[notes_explain_to_index["x"]]
+        y = _note[notes_explain_to_index["y"]]
+        width = _note[notes_explain_to_index["width"]]
+        is_yellow = _note[notes_explain_to_index["is_yellow"]] != 1
+        _type_id = _note[notes_explain_to_index["type"]]
+        type_id = _type_id + 1 if is_yellow else _type_id
+        judge_type_id = _note[notes_explain_to_index["judge_type"]]
+        nn = Note(
+            x=x,
+            y=y,
+            width=width,
+            type=NotesType(type_id),
+            judge_type=JudgeType(judge_type_id),
+        )
+        if nn.is_hold:
+            hold_type_id = _note[notes_explain_to_index["hold_type"]]
+            hole = _note[notes_explain_to_index["hole"]]
+            note.hold_type = HoldType[hold_type_id]
+            note.hold_type = hole
+
+        print(nn)
+        print(note)
+        assert nn == note, "equal old note"
+        assert nn != None, "none check"
 
         break
         notes_dict_for_json.append(note_dict)
