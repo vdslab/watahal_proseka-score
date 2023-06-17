@@ -8,6 +8,41 @@ from constant import CONTINUOUS_COST_RATE, MAX_KEYBOARD_COUNT, PUSHED_COST
 from section_divide import get_section
 
 
+def get_move_dist_cost(hand: FingeringHand, note: Note):
+    cost = abs(hand.x - note.x)
+    return cost if hand.can_push(note) else PUSHED_COST
+
+
+def get_continuous_index_count(list_index: list[int]):
+    if list_index is None or len(list_index) == 0:
+        return 0
+
+    now = list_index[0]
+    cnt = 0
+    for id in list_index:
+        if id != now:
+            break
+
+        now += 1
+        cnt += 1
+
+    return cnt
+
+
+def get_continuous_cost(hand: FingeringHand, note: Note, note_index: int):
+    move_cost = get_move_dist_cost(hand, note)
+    hand_notes_index, hand_notes = hand.notes
+
+    notes_contain_item = hand_notes is not None and len(hand_notes) > 0
+    is_continue = notes_contain_item and hand_notes_index[-1] == note_index - 1
+    continue_cnt = get_continuous_index_count(hand_notes_index)
+
+    cost = (
+        move_cost * (CONTINUOUS_COST_RATE**continue_cnt) if is_continue else move_cost
+    )
+    return cost
+
+
 def _get_lr_fingering(section, notes_index_by_y):
     # 左右の運指
     left = FingeringHand()
@@ -155,49 +190,17 @@ def main():
 
 if __name__ == "__main__":
     # main()
-    def get_move_dist_cost(hand: FingeringHand, note: Note):
-        cost = abs(hand.x - note.x)
-        return cost if hand.can_push(note) else PUSHED_COST
 
     test_note = Note(x=3, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF)
     test_note2 = Note(x=3, y=5, width=3, type=NotesType.HOLD, judge_type=JudgeType.HOLD)
     assert get_move_dist_cost(FingeringHand(), test_note) == 3
+
     test_hand = FingeringHand()
     test_hand.pushing = True
     assert get_move_dist_cost(test_hand, test_note) == PUSHED_COST
 
-    def get_continuous_index_count(list_index: list[int]):
-        if list_index is None or len(list_index) == 0:
-            return 0
-
-        now = list_index[0]
-        cnt = 0
-        for id in list_index:
-            if id != now:
-                break
-
-            now += 1
-            cnt += 1
-
-        return cnt
-
     ids = [1, 2, 3, 4, 5]
     assert get_continuous_index_count(ids) == 5
-
-    def get_continuous_cost(hand: FingeringHand, note: Note, note_index: int):
-        move_cost = get_move_dist_cost(hand, note)
-        hand_notes_index, hand_notes = hand.notes
-
-        notes_contain_item = hand_notes is not None and len(hand_notes) > 0
-        is_continue = notes_contain_item and hand_notes_index[-1] == note_index - 1
-        continue_cnt = get_continuous_index_count(hand_notes_index)
-
-        cost = (
-            move_cost * (CONTINUOUS_COST_RATE**continue_cnt)
-            if is_continue
-            else move_cost
-        )
-        return cost
 
     test_hand = FingeringHand()
     test_notes = [
