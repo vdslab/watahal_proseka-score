@@ -1,4 +1,4 @@
-from classes.Notes import Note
+from classes import Note
 from classes.types.HoldType import HoldType
 from constant import MAX_KEYBOARD_COUNT
 
