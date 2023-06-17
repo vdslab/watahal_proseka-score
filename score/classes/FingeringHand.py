@@ -1,7 +1,7 @@
 from constant import MAX_KEYBOARD_COUNT
 
 from .Notes import Note
-from .types.HoldType import HoldType
+from .types import HoldType, NotesType
 
 
 class FingeringHand:
@@ -68,6 +68,9 @@ class FingeringHand:
                 self.__notes_index = []
             self.__notes_index.append(index)
             self.__x = note.x
+            self.pushing = note.type == NotesType.HOLD and (
+                note.hold_type == HoldType.START or note.hold_type == HoldType.MIDDLE
+            )
 
     def can_push(self, note: Note) -> bool:
         if self.pushing:
