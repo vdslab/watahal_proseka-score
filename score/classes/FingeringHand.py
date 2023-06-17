@@ -24,16 +24,6 @@ class FingeringHand:
     def get_x(self):
         return self.__x
 
-    @x.setter
-    def set_x(self, to_x: int):
-        if MAX_KEYBOARD_COUNT <= to_x:
-            print(
-                f"[WARNING] get x:{to_x} is over max keyboard length ( {MAX_KEYBOARD_COUNT} ). cannot set x. please 0~{MAX_KEYBOARD_COUNT} number"
-            )
-            return
-
-        self.__x = to_x
-
     @property
     def cost(self):
         return self.__cost
@@ -77,6 +67,7 @@ class FingeringHand:
             if self.__notes_index is None:
                 self.__notes_index = []
             self.__notes_index.append(index)
+            self.__x = note.x
 
     def can_push(self, note: Note) -> bool:
         if self.pushing:
