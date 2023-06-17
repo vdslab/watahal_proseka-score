@@ -1,6 +1,7 @@
-from classes import Note
-from classes.types.HoldType import HoldType
 from constant import MAX_KEYBOARD_COUNT
+
+from .Notes import Note
+from .types.HoldType import HoldType
 
 
 class FingeringHand:
@@ -59,4 +60,4 @@ class FingeringHand:
 
             return False
 
-        return False
+        return True
