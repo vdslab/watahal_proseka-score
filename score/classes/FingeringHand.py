@@ -12,7 +12,7 @@ class FingeringHand:
     ) -> None:
         self.__x: int = x
         self.__notes: list[Note] = None
-        self.__notes_index: list[int] = Note
+        self.__notes_index: list[int] = None
         self.__cost: float = 0
         self.pushing: bool = False
 
