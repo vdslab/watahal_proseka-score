@@ -162,16 +162,24 @@ if __name__ == "__main__":
     test_note = Note(x=3, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF)
     test_note2 = Note(x=3, y=5, width=3, type=NotesType.HOLD, judge_type=JudgeType.HOLD)
     assert get_move_dist_cost(FingeringHand(), test_note) == 3
-    assert get_move_dist_cost(FingeringHand(pushing=True), test_note) == PUSHED_COST
+    test_hand = FingeringHand()
+    test_hand.pushing = True
+    assert get_move_dist_cost(test_hand, test_note) == PUSHED_COST
 
     def get_continuous_index_count(list_index: list[int]):
         if list_index is None or len(list_index) == 0:
             return 0
 
-        def count_continuous(x, y):
-            is_continue = x + 1 < len(list_index) and list_index[x + 1] == y + 1
-            cnt = x + 1 if is_continue else x
-            return cnt + 1 if y == list_index[-1] else cnt
+        now = list_index[0]
+        cnt = 0
+        for id in list_index:
+            if id != now:
+                break
 
-        return reduce(count_continuous, list_index[::-1], 0)
+            now += 1
+            cnt += 1
 
+        return cnt
+
+    ids = [1, 2, 3, 4, 5]
+    assert get_continuous_index_count(ids) == 5
