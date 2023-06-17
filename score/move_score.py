@@ -183,3 +183,37 @@ if __name__ == "__main__":
 
     ids = [1, 2, 3, 4, 5]
     assert get_continuous_index_count(ids) == 5
+
+    def get_continuous_cost(hand: FingeringHand, note: Note, note_index: int):
+        move_cost = get_move_dist_cost(hand, note)
+        hand_notes_index, hand_notes = hand.notes
+
+        notes_contain_item = hand_notes is not None and len(hand_notes) > 0
+        is_continue = notes_contain_item and hand_notes_index[-1] == note_index - 1
+        continue_cnt = get_continuous_index_count(hand_notes_index)
+
+        cost = (
+            move_cost * (CONTINUOUS_COST_RATE**continue_cnt)
+            if is_continue
+            else move_cost
+        )
+        return cost
+
+    test_hand = FingeringHand()
+    test_notes = [
+        Note(x=3, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
+        Note(x=4, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
+        Note(x=5, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
+        Note(x=6, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
+        Note(x=7, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
+    ]
+    test_add_note = Note(
+        x=8, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF
+    )
+    for v in zip(range(len(test_notes)), test_notes):
+        test_hand.add_notes(v)
+
+    assert (
+        abs(get_continuous_cost(test_hand, test_add_note, len(test_notes)) - 2.48832)
+        < 0.000_01
+    )
