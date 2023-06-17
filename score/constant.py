@@ -1,5 +1,6 @@
 MAX_KEYBOARD_COUNT = 12
-
+PUSHED_COST = 100
+CONTINUOUS_COST_RATE = 1.2
 # judge_types
 JUDGE_TYPES = [
     "off",
