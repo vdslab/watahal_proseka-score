@@ -2,22 +2,23 @@ from collections import defaultdict
 from functools import reduce
 from pprint import pprint
 
-import constant
+from classes import FingeringHand, Note
+from classes.types import JudgeType, NotesType
+from constant import CONTINUOUS_COST_RATE, MAX_KEYBOARD_COUNT, PUSHED_COST
 from section_divide import get_section
 
 
 def _get_lr_fingering(section, notes_index_by_y):
     # 左右の運指
-    left = {"x": 0, "notes": [], "cost": 0, "pushing": False}
-    right = {
-        "x": constant.MAX_KEYBOARD_COUNT,
+    left = FingeringHand()
+    right = FingeringHand(x=MAX_KEYBOARD_COUNT)
+    left_dict = {"x": 0, "notes": [], "cost": 0, "pushing": False}
+    right_dict = {
+        "x": MAX_KEYBOARD_COUNT,
         "notes": [],
         "cost": 0,
         "pushing": False,
     }
-
-    PUSHED_COST = 100
-    CONTINUOUS_COST_RATE = 1.2
 
     def get_move_dist_cost(hand: dict, note_index: int):
         cost = abs(hand["x"] - section[note_index]["x"])
@@ -72,28 +73,28 @@ def _get_lr_fingering(section, notes_index_by_y):
         if len(note[1]) >= 2:
             # 単純に左右にある方をそれぞれに追加
             left_note_index = note[1][0]
-            update_hand_from_index(section, left, left_note_index)
+            update_hand_from_index(section, left_dict, left_note_index)
 
             right_note_index = note[1][1]
-            update_hand_from_index(section, right, right_note_index)
+            update_hand_from_index(section, right_dict, right_note_index)
         else:
             # 移動距離をそれぞれ求めて，小さい方で取る
             note_index = note[1][0]
-            left_move = abs(left["x"] - section[note_index]["x"])
-            right_move = abs(right["x"] - section[note_index]["x"])
+            left_move = abs(left_dict["x"] - section[note_index]["x"])
+            right_move = abs(right_dict["x"] - section[note_index]["x"])
 
             if left_move <= right_move:
-                if can_push_note(left, note_index):
-                    update_hand_from_index(section, left, note_index)
+                if can_push_note(left_dict, note_index):
+                    update_hand_from_index(section, left_dict, note_index)
                 else:
-                    update_hand_from_index(section, right, note_index)
+                    update_hand_from_index(section, right_dict, note_index)
             else:
-                if can_push_note(left, note_index):
-                    update_hand_from_index(section, right, note_index)
+                if can_push_note(left_dict, note_index):
+                    update_hand_from_index(section, right_dict, note_index)
                 else:
-                    update_hand_from_index(section, left, note_index)
+                    update_hand_from_index(section, left_dict, note_index)
 
-    return left, right
+    return left_dict, right_dict
 
 
 def get_fingering(notes_json_file_relative_path: str) -> list[dict]:
@@ -153,4 +154,11 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    def get_move_dist_cost(hand: FingeringHand, note: Note):
+        cost = abs(hand.x - note.x)
+        return cost if hand.can_push(note) else PUSHED_COST
+
+    test_note = Note(x=3, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF)
+    test_note2 = Note(x=3, y=5, width=3, type=NotesType.HOLD, judge_type=JudgeType.HOLD)
+    assert get_move_dist_cost(FingeringHand(pushing=True), test_note) != 3
