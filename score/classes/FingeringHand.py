@@ -63,7 +63,7 @@ class FingeringHand:
     def add_notes(self, value: tuple[int, Note]):
         try:
             index, note = value
-            if type(index) == int or type(note) == Note:
+            if type(index) != int or type(note) != Note:
                 raise TypeError
         except ValueError:
             raise ValueError("please set iterable two items (int, Note)")
