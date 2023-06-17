@@ -43,6 +43,12 @@ def get_continuous_cost(hand: FingeringHand, note: Note, note_index: int):
     return cost
 
 
+def get_cost(hand: FingeringHand, note: Note, note_index: int):
+    move_dist_cost = get_move_dist_cost(hand, note)
+    continuous_cost = get_continuous_cost(hand, note, note_index)
+    return sum([move_dist_cost, continuous_cost])
+
+
 def _get_lr_fingering(section, notes_index_by_y):
     # 左右の運指
     left = FingeringHand()
