@@ -11,7 +11,8 @@ class FingeringHand:
         x: int = 0,
     ) -> None:
         self.__x: int = x
-        self.__notes: list[tuple(int, Note)] = None
+        self.__notes: list[Note] = None
+        self.__notes_index: list[int] = Note
         self.__cost: float = 0
         self.pushing: bool = False
 
@@ -51,26 +52,31 @@ class FingeringHand:
         self.__cost += cost
 
     @property
-    def notes(self) -> list[tuple[int, Note]]:
-        return self.__notes
+    def notes(self) -> tuple[list[int], list[Note]]:
+        return self.__notes_index, self.__notes
 
     @notes.setter
     def set_notes(self, value: tuple[int, Note]):
         try:
             index, note = value
-            if type(value) == tuple or type(index) == int or type(note) == Note:
+            if type(index) == int or type(note) == Note:
                 raise TypeError
-
         except ValueError:
-            raise ValueError("please set iterable two items (index, note)")
+            raise ValueError("please set iterable two items (int, Note)")
         except TypeError:
-            raise TypeError("please set tuple of (int, Note) item")
+            raise TypeError("please set iterable of (int, Note) item")
         else:
-            self.__notes.append(value)
+            if self.__notes is None:
+                self.__notes = []
+            self.__notes.append(note)
+
+            if self.__notes_index is None:
+                self.__notes_index = []
+            self.__notes_index.append(index)
 
     @notes.getter
-    def get_notes(self) -> list[tuple[int, Note]]:
-        return self.__notes
+    def get_notes(self) -> tuple[list[int], list[Note]]:
+        return self.__notes_index, self.__notes
 
     def can_push(self, note: Note) -> bool:
         if self.pushing:
