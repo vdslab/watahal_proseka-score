@@ -55,8 +55,12 @@ class FingeringHand:
     def notes(self) -> tuple[list[int], list[Note]]:
         return self.__notes_index, self.__notes
 
-    @notes.setter
-    def set_notes(self, value: tuple[int, Note]):
+    @notes.getter
+    def get_notes(self) -> tuple[list[int], list[Note]]:
+        return self.__notes_index, self.__notes
+
+    # @notes.setter
+    def add_notes(self, value: tuple[int, Note]):
         try:
             index, note = value
             if type(index) == int or type(note) == Note:
@@ -73,10 +77,6 @@ class FingeringHand:
             if self.__notes_index is None:
                 self.__notes_index = []
             self.__notes_index.append(index)
-
-    @notes.getter
-    def get_notes(self) -> tuple[list[int], list[Note]]:
-        return self.__notes_index, self.__notes
 
     def can_push(self, note: Note) -> bool:
         if self.pushing:
