@@ -4,11 +4,18 @@ from constant import MAX_KEYBOARD_COUNT
 
 
 class FingeringHand:
-    def __init__(self) -> None:
-        self._x: int = 0
-        self.notes: list[Note] = []
-        self._cost: float = 0
-        self.pushing: bool = False
+    def __init__(
+        self,
+        *,
+        x: int = 0,
+        notes: list[Note] = None,
+        cost: float = 0,
+        pushing: bool = False,
+    ) -> None:
+        self._x: int = x
+        self.notes: list[Note] = notes
+        self._cost: float = cost
+        self.pushing: bool = pushing
 
     @property
     def x(self):
