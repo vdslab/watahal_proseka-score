@@ -49,7 +49,51 @@ def get_cost(hand: FingeringHand, note: Note, note_index: int):
     return sum([move_dist_cost, continuous_cost])
 
 
-def _get_lr_fingering(section, notes_index_by_y):
+def get_lr_fingering(
+    notes_index_by_y: dict[float, list]
+) -> tuple[FingeringHand, FingeringHand]:
+    """Return left and right fingering by one sections"""
+    left = FingeringHand()
+    right = FingeringHand(x=MAX_KEYBOARD_COUNT)
+    # 運指の作成
+    for i, note in enumerate(notes_index_by_y.values()):
+        print(f"{note=}")
+        left_cost = get_cost(left, note, i)
+        right_cost = get_cost(right, note, i)
+        if left_cost <= right_cost:
+            left.add_notes((i, note))
+            left.add_cost(left_cost)
+        else:
+            right.add_notes((i, note))
+            right.add_cost(right_cost)
+
+    return left, right
+
+
+def _get_fingering(
+    notes_json_file_relative_path: str,
+) -> list[dict[str, FingeringHand]]:
+    notes_section = get_section(notes_json_file_relative_path)
+    fingering: list[dict[str, FingeringHand]] = []
+
+    for i, section in enumerate(notes_section):
+        # y座標ごとのノーツIDを格納
+        # 中間点は削除
+        notes_index_by_y = defaultdict(list[int])
+        for i, note in enumerate(section):
+            if note["hold_type"] == "middle":
+                continue
+            notes_index_by_y[note["y"]].append(i)
+        # for i, note in enumerate(notes_index_by_y.items()):
+        #     print(i, note)
+
+        # 左右の運指
+        left, right = get_lr_fingering(notes_index_by_y)
+        fingering.append({"left": left, "right": right})
+    return fingering
+
+
+def _get_lr_fingering(section, notes_index_by_y: dict[float, list]):
     # 左右の運指
     left = FingeringHand()
     right = FingeringHand(x=MAX_KEYBOARD_COUNT)
@@ -191,11 +235,11 @@ def get_fingering(notes_json_file_relative_path: str) -> list[dict]:
 
 
 def main():
-    pprint(get_fingering("score/data/m155_notes-test.json"))
+    pprint(_get_fingering("score/data/m155_notes-test.json"))
 
 
 if __name__ == "__main__":
-    # main()
+    main()
 
     test_note = Note(x=3, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF)
     test_note2 = Note(x=3, y=5, width=3, type=NotesType.HOLD, judge_type=JudgeType.HOLD)
