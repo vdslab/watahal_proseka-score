@@ -32,7 +32,7 @@ class FingeringHand:
     def get_cost(self):
         return self.__cost
 
-    @cost.setter
+    # @cost.setter
     def add_cost(self, cost: int) -> None:
         if 0 < cost:
             print(
