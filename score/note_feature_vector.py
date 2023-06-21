@@ -21,8 +21,37 @@ def _get_section_feature_vector(section: list[Note]):
         note_types_count[note.type.name] += 1
     note_types_count_list = [note_types_count[key.name] for key in list(NotesType)]
     all_cnt = sum(note_types_count_list)
+
+    # right_shift = 0
+    # left_shift = 0
+    # def shift_right(id1, id2):
+    #     if section[id1].x < section[id2].x:
+    #         return True
+    #     return False
+    # for i in range(len(section)):
+    #     j = i
+    #     while j < len(section) and section[j].y == section[i].y:
+    #         j += 1
+    #     if j >= len(section):
+    #         continue
+    #     if section[i].x == section[j].x:
+    #         continue
+    #     if shift_right(i, j):
+    #         right_shift += 1
+    #     else:
+    #         left_shift += 1
+
+    move_sum = 0
+    for i in range(len(section)):
+        j = i
+        while j < len(section) and section[j].y == section[i].y:
+            j += 1
+        if j >= len(section):
+            continue
+        move_sum += abs(section[i].x - section[j].x)
+
     # TODO
-    note_density = duration / all_cnt
+    # note_density = duration / all_cnt
 
     # # x_shift：右にだんだんとずれていく=>値が大きい
     # x_right_shift = 0
@@ -53,7 +82,8 @@ def _get_section_feature_vector(section: list[Note]):
     # print_(f"{consecutive_same_x_count_list=}")
     # print_(f"{consecutive_same_x_average_variance=}")
 
-    return [note_density, all_cnt]
+    return [all_cnt, all_cnt, move_sum]
+    return [all_cnt, all_cnt, right_shift, left_shift]
     return (
         [duration]
         + note_types_count_list
@@ -142,9 +172,10 @@ def get_feature_vectors(notes_json_file_relative_path: str):
 if __name__ == "__main__":
     feature_vectors = get_feature_vectors("score/data/m155.json")
     pprint(feature_vectors)
+    # assert feature_vectors[0] == [3, 3, 0, 1]
 
     save_dir = "score/data"
-    save_file_name = "_dens_cnt_fv.json"
+    save_file_name = "_cnt2_move_fv.json"
     save_path = (
         save_dir + save_file_name
         if save_dir[-1] == "/"
