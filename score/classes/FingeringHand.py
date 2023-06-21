@@ -34,7 +34,7 @@ class FingeringHand:
 
     # @cost.setter
     def add_cost(self, cost: int) -> None:
-        if 0 < cost:
+        if cost < 0:
             print(
                 f"[WARNING] get cost:{cost} is under 0. cannot add cost. please 0 or more number"
             )

@@ -51,20 +51,20 @@ def get_notes_score(file_path: str) -> list[Note]:
 
 
 def main():
-    save_dir = "score/data"
-    save_file_name = "_notes-test.json"
-    save_path = (
-        save_dir + save_file_name
-        if save_dir[-1] == "/"
-        else f"{save_dir}/{save_file_name}"
-    )
+    # save_dir = "score/data"
+    # save_file_name = "_notes-test.json"
+    # save_path = (
+    #     save_dir + save_file_name
+    #     if save_dir[-1] == "/"
+    #     else f"{save_dir}/{save_file_name}"
+    # )
 
     score_file_path = "score/data/m155.json"
     notes_score = get_notes_score(score_file_path)
     notes_score_dict = [note.to_dict() for note in notes_score]
 
-    with open(save_path, "w") as f:
-        json.dump(notes_score_dict, f, indent=2, ensure_ascii=False)
+    # with open(save_path, "w") as f:
+    #     json.dump(notes_score_dict, f, indent=2, ensure_ascii=False)
 
 
 if __name__ == "__main__":

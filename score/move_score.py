@@ -50,21 +50,41 @@ def get_cost(hand: FingeringHand, note: Note, note_index: int):
 
 
 def get_lr_fingering(
-    notes_index_by_y: dict[float, list]
+    id_and_notes_by_y: dict[float, list[tuple[int, Note]]]
 ) -> tuple[FingeringHand, FingeringHand]:
     """Return left and right fingering by one sections"""
     left = FingeringHand()
     right = FingeringHand(x=MAX_KEYBOARD_COUNT)
     # 運指の作成
-    for i, note in enumerate(notes_index_by_y.values()):
-        print(f"{note=}")
-        left_cost = get_cost(left, note, i)
-        right_cost = get_cost(right, note, i)
+    for i, notes in enumerate(id_and_notes_by_y.values()):
+        if len(notes) > 2:
+            print("[TODO] 同時押しが3つ以上")
+            continue
+
+        if len(notes) == 2:
+            ((l_id, l_note), (r_id, r_note)) = (
+                (notes[0], notes[1])
+                if notes[0][1].x < notes[1][1].x
+                else (notes[1], notes[0])
+            )
+            # left
+            left_cost = get_cost(left, l_note, l_id)
+            left.add_notes((l_id, l_note))
+            left.add_cost(left_cost)
+            # right
+            right_cost = get_cost(right, r_note, r_id)
+            right.add_notes((r_id, r_note))
+            right.add_cost(right_cost)
+            continue
+        # print(f"{notes=}")
+        (id, note) = notes[0]
+        left_cost = get_cost(left, note, id)
+        right_cost = get_cost(right, note, id)
         if left_cost <= right_cost:
-            left.add_notes((i, note))
+            left.add_notes((id, note))
             left.add_cost(left_cost)
         else:
-            right.add_notes((i, note))
+            right.add_notes((id, note))
             right.add_cost(right_cost)
 
     return left, right
@@ -79,163 +99,166 @@ def _get_fingering(
     for i, section in enumerate(notes_section):
         # y座標ごとのノーツIDを格納
         # 中間点は削除
-        notes_index_by_y = defaultdict(list[int])
+        id_and_notes_by_y: dict[float, list[tuple[int, Note]]] = defaultdict(
+            list[tuple[int, Note]]
+        )
         for i, note in enumerate(section):
             if note.hold_type == HoldType.MIDDLE:
                 continue
-            notes_index_by_y[note.y].append(i)
+            id_and_notes_by_y[note.y].append((i, note))
         # for i, note in enumerate(notes_index_by_y.items()):
         #     print(i, note)
+        # print(f"{id_and_notes_by_y=}")
 
         # 左右の運指
-        left, right = get_lr_fingering(notes_index_by_y)
+        left, right = get_lr_fingering(id_and_notes_by_y)
         fingering.append({"left": left, "right": right})
     return fingering
 
 
-def _get_lr_fingering(section, notes_index_by_y: dict[float, list]):
-    # 左右の運指
-    left = FingeringHand()
-    right = FingeringHand(x=MAX_KEYBOARD_COUNT)
-    left_dict = {"x": 0, "notes": [], "cost": 0, "pushing": False}
-    right_dict = {
-        "x": MAX_KEYBOARD_COUNT,
-        "notes": [],
-        "cost": 0,
-        "pushing": False,
-    }
+# def _get_lr_fingering(section, notes_index_by_y: dict[float, list]):
+#     # 左右の運指
+#     left = FingeringHand()
+#     right = FingeringHand(x=MAX_KEYBOARD_COUNT)
+#     left_dict = {"x": 0, "notes": [], "cost": 0, "pushing": False}
+#     right_dict = {
+#         "x": MAX_KEYBOARD_COUNT,
+#         "notes": [],
+#         "cost": 0,
+#         "pushing": False,
+#     }
 
-    def get_move_dist_cost(hand: dict, note_index: int):
-        cost = abs(hand["x"] - section[note_index]["x"])
-        return cost if can_push_note(hand, note_index) else PUSHED_COST
+#     def get_move_dist_cost(hand: dict, note_index: int):
+#         cost = abs(hand["x"] - section[note_index]["x"])
+#         return cost if can_push_note(hand, note_index) else PUSHED_COST
 
-    def get_continuous_cost(hand: dict, note_index: int):
-        move_cost = get_move_dist_cost(hand, note_index)
-        is_continue = len(hand["notes"]) > 0 and hand["notes"][-1] == note_index - 1
+#     def get_continuous_cost(hand: dict, note_index: int):
+#         move_cost = get_move_dist_cost(hand, note_index)
+#         is_continue = len(hand["notes"]) > 0 and hand["notes"][-1] == note_index - 1
 
-        def reduce_func(x, y):
-            is_continue = x + 1 < len(hand["notes"]) and hand["notes"][x + 1] == y + 1
-            cnt = x + 1 if is_continue else x
-            return cnt + 1 if y == hand["notes"][-1] else cnt
+#         def reduce_func(x, y):
+#             is_continue = x + 1 < len(hand["notes"]) and hand["notes"][x + 1] == y + 1
+#             cnt = x + 1 if is_continue else x
+#             return cnt + 1 if y == hand["notes"][-1] else cnt
 
-        continue_cnt = reduce(reduce_func, hand["notes"][::-1], 0)
-        cost = (
-            move_cost * (CONTINUOUS_COST_RATE**continue_cnt)
-            if is_continue
-            else move_cost
-        )
-        return cost
+#         continue_cnt = reduce(reduce_func, hand["notes"][::-1], 0)
+#         cost = (
+#             move_cost * (CONTINUOUS_COST_RATE**continue_cnt)
+#             if is_continue
+#             else move_cost
+#         )
+#         return cost
 
-    def get_cost(hand: dict, note_index: int):
-        push_note = section[note_index]
-        move_dist_cost = get_move_dist_cost(hand, note_index)
-        continuous_cost = get_continuous_cost(hand, note_index)
+#     def get_cost(hand: dict, note_index: int):
+#         push_note = section[note_index]
+#         move_dist_cost = get_move_dist_cost(hand, note_index)
+#         continuous_cost = get_continuous_cost(hand, note_index)
 
-    def can_push_note(hand: dict, note_index: int):
-        push_note = section[note_index]
-        if hand["pushing"]:
-            if push_note["judge_type"] == "hold" and push_note["hold_type"] == "end":
-                return True
+#     def can_push_note(hand: dict, note_index: int):
+#         push_note = section[note_index]
+#         if hand["pushing"]:
+#             if push_note["judge_type"] == "hold" and push_note["hold_type"] == "end":
+#                 return True
 
-            return False
+#             return False
 
-        return True
+#         return True
 
-    def update_hand_from_index(
-        section: list[list[dict]], hand: dict, note_index: int
-    ) -> dict:
-        push_note = section[note_index]
-        hand["notes"].append(note_index)
-        hand["cost"] += abs(hand["x"] - push_note["x"])
-        hand["x"] = push_note["x"]
-        if push_note["hold_type"] == "end":
-            hand["pushing"] = False
-        else:
-            hand["pushing"] = True
+#     def update_hand_from_index(
+#         section: list[list[dict]], hand: dict, note_index: int
+#     ) -> dict:
+#         push_note = section[note_index]
+#         hand["notes"].append(note_index)
+#         hand["cost"] += abs(hand["x"] - push_note["x"])
+#         hand["x"] = push_note["x"]
+#         if push_note["hold_type"] == "end":
+#             hand["pushing"] = False
+#         else:
+#             hand["pushing"] = True
 
-    # 運指の作成
-    for note in notes_index_by_y.items():
-        if len(note[1]) >= 2:
-            # 単純に左右にある方をそれぞれに追加
-            left_note_index = note[1][0]
-            update_hand_from_index(section, left_dict, left_note_index)
+#     # 運指の作成
+#     for note in notes_index_by_y.items():
+#         if len(note[1]) >= 2:
+#             # 単純に左右にある方をそれぞれに追加
+#             left_note_index = note[1][0]
+#             update_hand_from_index(section, left_dict, left_note_index)
 
-            right_note_index = note[1][1]
-            update_hand_from_index(section, right_dict, right_note_index)
-        else:
-            # 移動距離をそれぞれ求めて，小さい方で取る
-            note_index = note[1][0]
-            left_move = abs(left_dict["x"] - section[note_index]["x"])
-            right_move = abs(right_dict["x"] - section[note_index]["x"])
+#             right_note_index = note[1][1]
+#             update_hand_from_index(section, right_dict, right_note_index)
+#         else:
+#             # 移動距離をそれぞれ求めて，小さい方で取る
+#             note_index = note[1][0]
+#             left_move = abs(left_dict["x"] - section[note_index]["x"])
+#             right_move = abs(right_dict["x"] - section[note_index]["x"])
 
-            if left_move <= right_move:
-                if can_push_note(left_dict, note_index):
-                    update_hand_from_index(section, left_dict, note_index)
-                else:
-                    update_hand_from_index(section, right_dict, note_index)
-            else:
-                if can_push_note(left_dict, note_index):
-                    update_hand_from_index(section, right_dict, note_index)
-                else:
-                    update_hand_from_index(section, left_dict, note_index)
+#             if left_move <= right_move:
+#                 if can_push_note(left_dict, note_index):
+#                     update_hand_from_index(section, left_dict, note_index)
+#                 else:
+#                     update_hand_from_index(section, right_dict, note_index)
+#             else:
+#                 if can_push_note(left_dict, note_index):
+#                     update_hand_from_index(section, right_dict, note_index)
+#                 else:
+#                     update_hand_from_index(section, left_dict, note_index)
 
-    return left_dict, right_dict
+#     return left_dict, right_dict
 
 
-def get_fingering(notes_json_file_relative_path: str) -> list[dict]:
-    """
-    同時押しと同時押しの区間において，運指を，左右どちらでとるかを移動距離ベースで作成する
+# def get_fingering(notes_json_file_relative_path: str) -> list[dict]:
+#     """
+#     同時押しと同時押しの区間において，運指を，左右どちらでとるかを移動距離ベースで作成する
 
-    ただしノーツは，ホールドの中間点を除いている
+#     ただしノーツは，ホールドの中間点を除いている
 
-    優先順位：左の座標と近いノーツ，左手
+#     優先順位：左の座標と近いノーツ，左手
 
-    # Returns
-    fingering = { "left" : array, "right" : array }
-    """
+#     # Returns
+#     fingering = { "left" : array, "right" : array }
+#     """
 
-    notes_section = get_section(notes_json_file_relative_path)
-    fingering: list[dict] = []
+#     notes_section = get_section(notes_json_file_relative_path)
+#     fingering: list[dict] = []
 
-    for i, section in enumerate(notes_section):
-        # --- デバッグ用の区間調整
-        # if i < 3:
-        #     continue
-        # if i >= 8:
-        #     break
-        # ---
-        # print(section)
-        # y座標ごとのノーツIDを格納
-        # 中間点は削除
-        notes_index_by_y = defaultdict(list[int])
-        for i, note in enumerate(section):
-            if note["hold_type"] == "middle":
-                continue
-            notes_index_by_y[note["y"]].append(i)
-        # for i, note in enumerate(notes_index_by_y.items()):
-        #     print(i, note)
+#     for i, section in enumerate(notes_section):
+#         # --- デバッグ用の区間調整
+#         # if i < 3:
+#         #     continue
+#         # if i >= 8:
+#         #     break
+#         # ---
+#         # print(section)
+#         # y座標ごとのノーツIDを格納
+#         # 中間点は削除
+#         notes_index_by_y = defaultdict(list[int])
+#         for i, note in enumerate(section):
+#             if note["hold_type"] == "middle":
+#                 continue
+#             notes_index_by_y[note["y"]].append(i)
+#         # for i, note in enumerate(notes_index_by_y.items()):
+#         #     print(i, note)
 
-        # 左右の運指
-        left, right = _get_lr_fingering(section, notes_index_by_y)
-        fingering.append({"left": left, "right": right})
+#         # 左右の運指
+#         left, right = _get_lr_fingering(section, notes_index_by_y)
+#         fingering.append({"left": left, "right": right})
 
-        # --- デバッグ用
-        # 出力確認
-        # print("i:", i)
-        # print("left")
-        # print(left)
-        # print("right")
-        # print(right)
-        # print()
-        # 区間調整
-        # if i >= 64:
-        # break
-        # ---
-    return fingering
+#         # --- デバッグ用
+#         # 出力確認
+#         # print("i:", i)
+#         # print("left")
+#         # print(left)
+#         # print("right")
+#         # print(right)
+#         # print()
+#         # 区間調整
+#         # if i >= 64:
+#         # break
+#         # ---
+#     return fingering
 
 
 def main():
-    pprint(_get_fingering("score/data/m155_notes-test.json"))
+    pprint(_get_fingering("score/data/m155.json"))
 
 
 if __name__ == "__main__":
