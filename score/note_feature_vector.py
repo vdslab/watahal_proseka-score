@@ -16,13 +16,13 @@ def _get_section_feature_vector(section: list[Note]):
     # 区間特徴
     duration = section[-1].y - section[0].y
 
-    # TODO
-    # note_density = 0
-
     note_types_count = {type.name: 0 for type in list(NotesType)}
     for note in section:
         note_types_count[note.type.name] += 1
     note_types_count_list = [note_types_count[key.name] for key in list(NotesType)]
+    all_cnt = sum(note_types_count_list)
+    # TODO
+    note_density = duration / all_cnt
 
     # # x_shift：右にだんだんとずれていく=>値が大きい
     # x_right_shift = 0
@@ -53,7 +53,7 @@ def _get_section_feature_vector(section: list[Note]):
     # print_(f"{consecutive_same_x_count_list=}")
     # print_(f"{consecutive_same_x_average_variance=}")
 
-    return [sum(note_types_count_list)]
+    return [note_density, all_cnt]
     return (
         [duration]
         + note_types_count_list
@@ -144,7 +144,7 @@ if __name__ == "__main__":
     pprint(feature_vectors)
 
     save_dir = "score/data"
-    save_file_name = "feature_vector.json"
+    save_file_name = "_dens_cnt_fv.json"
     save_path = (
         save_dir + save_file_name
         if save_dir[-1] == "/"
