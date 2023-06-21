@@ -1,6 +1,31 @@
 import json
 import pprint
 
+from arrange_score import get_notes_score
+from classes import Note
+from classes.types import HoldType
+
+
+def _get_section(file_path: str):
+    score: list[Note] = get_notes_score(file_path)
+    section_groups: list[list[Note]] = []
+    section: list[Note] = []
+    for i in range(len(score) - 1):
+        section.append(score[i])
+
+        same_y = score[i].y == score[i + 1].y
+        is_middle = (
+            score[i].hold_type == HoldType.MIDDLE
+            or score[i + 1].hold_type == HoldType.MIDDLE
+        )
+        if not same_y or is_middle:
+            continue
+
+        section.append(score[i + 1])
+        section_groups.append(section)
+        section = [score[i]]
+    return section_groups
+
 
 def divider(notes: list[dict]) -> list[list[dict]]:
     """
