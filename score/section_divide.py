@@ -6,7 +6,7 @@ from classes import Note
 from classes.types import HoldType
 
 
-def _get_section(file_path: str):
+def _get_section(file_path: str) -> list[list[Note]]:
     score: list[Note] = get_notes_score(file_path)
     section_groups: list[list[Note]] = []
     section: list[Note] = []
