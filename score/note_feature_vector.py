@@ -3,7 +3,7 @@ from pprint import pprint
 
 import constant
 import numpy
-from move_score import get_fingering
+from move_score import get_fingering, _get_fingering
 from section_divide import get_section
 
 

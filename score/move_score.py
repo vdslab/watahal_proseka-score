@@ -3,9 +3,9 @@ from functools import reduce
 from pprint import pprint
 
 from classes import FingeringHand, Note
-from classes.types import JudgeType, NotesType
+from classes.types import HoldType, JudgeType, NotesType
 from constant import CONTINUOUS_COST_RATE, MAX_KEYBOARD_COUNT, PUSHED_COST
-from section_divide import get_section
+from section_divide import _get_section, get_section
 
 
 def get_move_dist_cost(hand: FingeringHand, note: Note):
@@ -73,7 +73,7 @@ def get_lr_fingering(
 def _get_fingering(
     notes_json_file_relative_path: str,
 ) -> list[dict[str, FingeringHand]]:
-    notes_section = get_section(notes_json_file_relative_path)
+    notes_section = _get_section(notes_json_file_relative_path)
     fingering: list[dict[str, FingeringHand]] = []
 
     for i, section in enumerate(notes_section):
@@ -81,9 +81,9 @@ def _get_fingering(
         # 中間点は削除
         notes_index_by_y = defaultdict(list[int])
         for i, note in enumerate(section):
-            if note["hold_type"] == "middle":
+            if note.hold_type == HoldType.MIDDLE:
                 continue
-            notes_index_by_y[note["y"]].append(i)
+            notes_index_by_y[note.y].append(i)
         # for i, note in enumerate(notes_index_by_y.items()):
         #     print(i, note)
 
