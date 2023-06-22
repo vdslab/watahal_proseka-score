@@ -82,7 +82,7 @@ def _get_section_feature_vector(section: list[Note]):
     # print_(f"{consecutive_same_x_count_list=}")
     # print_(f"{consecutive_same_x_average_variance=}")
 
-    return [all_cnt, all_cnt, move_sum]
+    return [all_cnt * all_cnt, numpy.log(1 + move_sum)]
     return [all_cnt, all_cnt, right_shift, left_shift]
     return (
         [duration]
@@ -175,7 +175,7 @@ if __name__ == "__main__":
     # assert feature_vectors[0] == [3, 3, 0, 1]
 
     save_dir = "score/data"
-    save_file_name = "_cnt2_move_fv.json"
+    save_file_name = "_double_cnt_log_move_fv.json"
     save_path = (
         save_dir + save_file_name
         if save_dir[-1] == "/"
