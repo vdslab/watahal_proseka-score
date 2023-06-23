@@ -50,6 +50,24 @@ def _get_section_feature_vector(section: list[Note]):
             continue
         move_sum += abs(section[i].x - section[j].x)
 
+    flip_count = 0
+    move_right = None
+    for i in range(len(section)):
+        j = i
+        while j < len(section) and section[j].y == section[i].y:
+            j += 1
+        if j >= len(section):
+            continue
+
+        if move_right is None:
+            move_right = section[i].x < section[j].x
+            continue
+        if section[i].x < section[j].x and not move_right:
+            flip_count += 1
+        elif section[j].x < section[i].x and move_right:
+            flip_count += 1
+        move_right = section[i].x < section[j].x
+
     # TODO
     # note_density = duration / all_cnt
 
@@ -82,7 +100,7 @@ def _get_section_feature_vector(section: list[Note]):
     # print_(f"{consecutive_same_x_count_list=}")
     # print_(f"{consecutive_same_x_average_variance=}")
 
-    return [all_cnt * all_cnt, numpy.log(1 + move_sum)]
+    return [all_cnt * all_cnt, numpy.log(1 + move_sum), flip_count]
     return [all_cnt, all_cnt, right_shift, left_shift]
     return (
         [duration]
@@ -175,7 +193,7 @@ if __name__ == "__main__":
     # assert feature_vectors[0] == [3, 3, 0, 1]
 
     save_dir = "score/data"
-    save_file_name = "_double_cnt_log_move_fv.json"
+    save_file_name = "_d_cnt_log_move_flip_fv.json"
     save_path = (
         save_dir + save_file_name
         if save_dir[-1] == "/"
