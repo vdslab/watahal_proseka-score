@@ -27,8 +27,8 @@ def get_notes_score(file_path: str) -> list[Note]:
         width = _note[notes_explain_to_index["width"]]
         # type
         is_yellow = _note[notes_explain_to_index["is_yellow"]] != 1
-        _type_id = _note[notes_explain_to_index["type"]]
-        type_id = _type_id + 1 if is_yellow else _type_id
+        type_id = _note[notes_explain_to_index["type"]]
+        # type_id = _type_id + 1 if is_yellow else _type_id
 
         judge_type_id = _note[notes_explain_to_index["judge_type"]]
 
@@ -44,8 +44,12 @@ def get_notes_score(file_path: str) -> list[Note]:
             hole = _note[notes_explain_to_index["hole"]]
             note.hold_type = HoldType(hold_type_id)
             note.hole = hole
+            note.is_yellow = is_yellow
 
         notes.append(note)
+
+        if abs(note.y - 97.25) < 0.0001:
+            print(note)
 
     return notes
 

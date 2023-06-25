@@ -76,10 +76,10 @@ def get_section(file_path: str) -> list[list[dict]] | None:
 
 
 def main():
-    notes_section = get_section("score/data/m155_notes.json")
+    notes_section = _get_section("score/data/m155.json")
     # pprint.pprint(notes_section)
-    for section in notes_section:
-        print(len(section))
+    # for section in notes_section:
+    #     print(len(section))
     # if notes_section:
     #     pprint.pprint(notes_section[2])
 
