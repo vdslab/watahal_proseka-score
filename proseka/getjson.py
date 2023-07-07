@@ -1,5 +1,6 @@
-import requests
 import json
+
+import requests
 
 urls = list()
 names = list()
