@@ -258,7 +258,11 @@ def _get_fingering(
 
 
 def main():
-    pprint(_get_fingering("score/data/m155.json"))
+    fingering = _get_fingering("score/data/m155.json")
+    for f in fingering:
+        print(f["left"])
+        print(f["right"])
+    # pprint(fingering)
 
 
 if __name__ == "__main__":

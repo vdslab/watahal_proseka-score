@@ -16,6 +16,9 @@ class FingeringHand:
         self.__cost: float = 0
         self.pushing: bool = False
 
+    def __str__(self):
+        return f"FingeringHand; cost:{self.__cost}, notes:{self.__notes}"
+
     @property
     def x(self):
         return self.__x
