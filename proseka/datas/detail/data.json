@@ -1,0 +1,52 @@
+{
+  "song1": {
+    "id": 1,
+    "name": "Tell Your World",
+    "level": 26
+  },
+  "song2": {
+    "id": 2,
+    "name": "ネクストネスト",
+    "level": 29
+  },
+  "song3": {
+    "id": 3,
+    "name": "メルト",
+    "level": 28
+  },
+  "song4": {
+    "id": 4,
+    "name": "初音ミクの消失",
+    "level": 35
+  },
+  "song5": {
+    "id": 5,
+    "name": "Blessing",
+    "level": 27
+  },
+  "song6": {
+    "id": 6,
+    "name": "alive",
+    "level": 26
+  },
+  "song7": {
+    "id": 7,
+    "name": "ロキ",
+    "level": 28
+  },
+  "song8": {
+    "id": 8,
+    "name": "テオ",
+    "level": 32
+  },
+  "song9": {
+    "id": 9,
+    "name": "ヒバナ -Reloaded-",
+    "level": 32
+  },
+  "song10": {
+    "id": 10,
+    "name": "ハッピーシンセサイザ",
+    "level": 28
+  }
+}
