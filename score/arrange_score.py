@@ -48,8 +48,8 @@ def get_notes_score(file_path: str) -> list[Note]:
 
         notes.append(note)
 
-        if abs(note.y - 97.25) < 0.0001:
-            print(note)
+        # if abs(note.y - 97.25) < 0.0001:
+        #     print(note)
 
     return notes
 
