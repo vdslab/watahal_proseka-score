@@ -187,18 +187,33 @@ def get_feature_vectors(notes_json_file_relative_path: str):
     return feature_vectors
 
 
+import glob
+import os
+
 if __name__ == "__main__":
-    feature_vectors = get_feature_vectors("score/data/m155.json")
-    pprint(feature_vectors)
-    # assert feature_vectors[0] == [3, 3, 0, 1]
+    save_dir = "score/data/_json/feature_vector"
+    os.makedirs(save_dir, exist_ok=True)
+    # os.path.splitext(os.path.basename(filepath))[0]
+    notes_file_paths = glob.glob("proseka/datas/*.json")
+    for file_path in notes_file_paths:
+        fv = get_feature_vectors(file_path)
+        save_file_name_base = os.path.splitext(os.path.basename(file_path))[0]
+        save_file_name = f"{save_file_name_base}_fv.json"
+        with open(f"{save_dir}/{save_file_name}", "w", newline="") as sf:
+            json.dump(fv, sf, indent=2, ensure_ascii=False)
 
-    save_dir = "score/data"
-    save_file_name = "_d_cnt_log_move_flip_fv.json"
-    save_path = (
-        save_dir + save_file_name
-        if save_dir[-1] == "/"
-        else f"{save_dir}/{save_file_name}"
-    )
+        # break
+    # feature_vectors = get_feature_vectors("score/data/m155.json")
+    # pprint(feature_vectors)
+    # # assert feature_vectors[0] == [3, 3, 0, 1]
 
-    with open(save_path, "w") as f:
-        json.dump(feature_vectors, f, indent=2, ensure_ascii=False)
+    # save_dir = "score/data"
+    # save_file_name = "_d_cnt_log_move_flip_fv.json"
+    # save_path = (
+    #     save_dir + save_file_name
+    #     if save_dir[-1] == "/"
+    #     else f"{save_dir}/{save_file_name}"
+    # )
+
+    # with open(save_path, "w") as f:
+    #     json.dump(feature_vectors, f, indent=2, ensure_ascii=False)
