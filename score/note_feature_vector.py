@@ -189,6 +189,7 @@ def get_feature_vectors(notes_json_file_relative_path: str):
 
 import glob
 import os
+import re
 
 if __name__ == "__main__":
     save_dir = "score/data/_json/feature_vector"
@@ -198,9 +199,16 @@ if __name__ == "__main__":
     for file_path in notes_file_paths:
         fv = get_feature_vectors(file_path)
         save_file_name_base = os.path.splitext(os.path.basename(file_path))[0]
+        id = re.split(r"(\D*)(\d*)", save_file_name_base)[2]
+        try:
+            id = int(id)
+        except:
+            raise RuntimeError("cannot convert id")
+
         save_file_name = f"{save_file_name_base}_fv.json"
+        jsondata = {"id": id, "data": fv}
         with open(f"{save_dir}/{save_file_name}", "w", newline="") as sf:
-            json.dump(fv, sf, indent=2, ensure_ascii=False)
+            json.dump(jsondata, sf, indent=2, ensure_ascii=False)
 
         # break
     # feature_vectors = get_feature_vectors("score/data/m155.json")
