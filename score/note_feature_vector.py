@@ -46,7 +46,7 @@ def _get_section_feature_vector(section: list[Note]):
     #         flip_count += 1
     #     move_right = section[i].x < section[j].x
 
-    return [all_cnt * all_cnt, move_sum]
+    return [all_cnt, move_sum]
 
 
 def _get_fingering_feature_vector(section: list[dict], fingering: dict):
@@ -126,7 +126,7 @@ if __name__ == "__main__":
         except:
             raise RuntimeError("cannot convert id")
 
-        save_file_name = f"{save_file_name_base}_[cnt2_move]_fv.json"
+        save_file_name = f"{save_file_name_base}_[cnt_move]_fv.json"
         jsondata = {"id": id, "data": fv}
         with open(f"{save_dir}/{save_file_name}", "w", newline="") as sf:
             json.dump(jsondata, sf, indent=2, ensure_ascii=False)
