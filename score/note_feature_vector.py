@@ -128,8 +128,9 @@ if __name__ == "__main__":
     save_dir = "score/data/_json/feature_vector/test"
     os.makedirs(save_dir, exist_ok=True)
     # os.path.splitext(os.path.basename(filepath))[0]
-    notes_file_paths = glob.glob("proseka/datas/*.json")
-    notes_file_paths = [f for f in notes_file_paths if "155" in f]
+    notes_file_path_search = glob.glob("proseka/datas/*.json")
+    notes_file_paths = [f for f in notes_file_path_search if "155" in f or "318" in f]
+    print(notes_file_paths)
     for file_path in notes_file_paths:
         fv = get_feature_vectors(file_path)
         save_file_name_base = os.path.splitext(os.path.basename(file_path))[0]
