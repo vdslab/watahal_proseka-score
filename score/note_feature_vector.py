@@ -1,4 +1,5 @@
 import json
+import math
 from pprint import pprint
 
 import constant
@@ -28,25 +29,37 @@ def _get_section_feature_vector(section: list[Note]):
             continue
         move_sum += abs(section[i].x - section[j].x)
 
-    # flip_count = 0
-    # move_right = None
-    # for i in range(len(section)):
-    #     j = i
-    #     while j < len(section) and section[j].y == section[i].y:
-    #         j += 1
-    #     if j >= len(section):
-    #         continue
+    def get_y_half_open_interval():
+        start_idx = 0
+        j = start_idx
+        while j < len(section) and section[j].y == section[start_idx].y:
+            j += 1
+        start_idx = j
 
-    #     if move_right is None:
-    #         move_right = section[i].x < section[j].x
-    #         continue
-    #     if section[i].x < section[j].x and not move_right:
-    #         flip_count += 1
-    #     elif section[j].x < section[i].x and move_right:
-    #         flip_count += 1
-    #     move_right = section[i].x < section[j].x
+        end_idx = len(section)
+        j = end_idx
+        while j > 0 and section[j - 1].y == section[end_idx - 1].y:
+            j -= 1
+        end_idx = j
+        return start_idx, end_idx
 
-    return [all_cnt, move_sum]
+    start, end = get_y_half_open_interval()
+    flip_count = 0
+    move_right = None
+    for i in range(start, end):
+        if i + 1 >= end:
+            break
+
+        if move_right is None:
+            move_right = section[i].x < section[i + 1].x
+            continue
+        if section[i].x < section[i + 1].x and not move_right:
+            flip_count += 1
+        elif section[i + 1].x < section[i].x and move_right:
+            flip_count += 1
+        move_right = section[i].x < section[i + 1].x
+
+    return [all_cnt, move_sum, flip_count * flip_count]
 
 
 def _get_fingering_feature_vector(section: list[dict], fingering: dict):
@@ -126,7 +139,7 @@ if __name__ == "__main__":
         except:
             raise RuntimeError("cannot convert id")
 
-        save_file_name = f"{save_file_name_base}_[cnt_move]_fv.json"
+        save_file_name = f"{save_file_name_base}_[cnt_move_flip2]_fv.json"
         jsondata = {"id": id, "data": fv}
         with open(f"{save_dir}/{save_file_name}", "w", newline="") as sf:
             json.dump(jsondata, sf, indent=2, ensure_ascii=False)
