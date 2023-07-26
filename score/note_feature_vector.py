@@ -14,12 +14,14 @@ def _get_section_feature_vector(section: list[Note]):
     # 区間特徴
     duration = section[-1].y - section[0].y
 
+    # ノーツの個数
     note_types_count = {type.name: 0 for type in list(NotesType)}
     for note in section:
         note_types_count[note.type.name] += 1
     note_types_count_list = [note_types_count[key.name] for key in list(NotesType)]
     all_cnt = sum(note_types_count_list)
 
+    # 移動量の合計
     move_sum = 0
     for i in range(len(section)):
         j = i
@@ -29,6 +31,7 @@ def _get_section_feature_vector(section: list[Note]):
             continue
         move_sum += abs(section[i].x - section[j].x)
 
+    # 最初と最後の同時押しを除いた，半開区間，[start, end)
     def get_y_half_open_interval():
         start_idx = 0
         j = start_idx
@@ -43,13 +46,11 @@ def _get_section_feature_vector(section: list[Note]):
         end_idx = j
         return start_idx, end_idx
 
+    # 左右のブレの回数
     start, end = get_y_half_open_interval()
     flip_count = 0
     move_right = None
-    for i in range(start, end):
-        if i + 1 >= end:
-            break
-
+    for i in range(start, end - 1):
         if move_right is None:
             move_right = section[i].x < section[i + 1].x
             continue
@@ -59,7 +60,53 @@ def _get_section_feature_vector(section: list[Note]):
             flip_count += 1
         move_right = section[i].x < section[i + 1].x
 
-    return [all_cnt, move_sum, flip_count * flip_count]
+    # 階段の段数
+    step_nums = []
+    move_right = None
+    for i in range(start, end - 1):
+        if move_right is None:
+            move_right = section[i].x < section[i + 1].x
+            step_nums.append(0)
+            continue
+
+        if move_right:
+            if section[i].x < section[i + 1].x:
+                step_nums[-1] += 1
+            elif section[i].x > section[i + 1].x:
+                move_right = False
+                step_nums.append(0)
+        else:
+            if section[i].x > section[i + 1].x:
+                step_nums[-1] += 1
+            elif section[i].x < section[i + 1].x:
+                move_right = True
+                step_nums.append(0)
+
+    step_nums = list(filter(lambda x: x != 0, step_nums))
+    step_num_ave = sum(step_nums) / (len(step_nums)) if len(step_nums) != 0 else 0
+
+    # 連続した個数
+    consecutive_counts = [0]
+    for i in range(start, end - 1):
+        if section[i].x == section[i + 1].x:
+            consecutive_counts[-1] += 1
+        else:
+            consecutive_counts.append(0)
+
+    consecutive_counts = list(filter(lambda x: x != 0, consecutive_counts))
+    consecutive_count_ave = (
+        sum(consecutive_counts) / (len(consecutive_counts))
+        if len(consecutive_counts) != 0
+        else 0
+    )
+
+    return [
+        all_cnt,
+        move_sum,
+        flip_count * flip_count,
+        consecutive_count_ave,
+        step_num_ave,
+    ]
 
 
 def _get_fingering_feature_vector(section: list[dict], fingering: dict):
@@ -140,7 +187,7 @@ if __name__ == "__main__":
         except:
             raise RuntimeError("cannot convert id")
 
-        save_file_name = f"{save_file_name_base}_[cnt_move_flip2]_fv.json"
+        save_file_name = f"{save_file_name_base}_[cnt_move_flip2_continue_step]_fv.json"
         jsondata = {"id": id, "data": fv}
         with open(f"{save_dir}/{save_file_name}", "w", newline="") as sf:
             json.dump(jsondata, sf, indent=2, ensure_ascii=False)
