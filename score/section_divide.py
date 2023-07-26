@@ -12,16 +12,16 @@ def _get_section(file_path: str) -> list[list[Note]]:
     section: list[Note] = []
     i = 0
     while i < len(score):
-        middle_count = 0
+        contain_middle = False
         j = i
         while j < len(score) and score[j].y == score[i].y:
             section.append(score[j])
             if score[j].hold_type == HoldType.MIDDLE:
-                middle_count += 1
+                contain_middle = True
             j += 1
 
         exist_same_y = i != j - 1
-        if not exist_same_y or middle_count + 1 == j - i:
+        if not exist_same_y or contain_middle:
             i = j
             continue
 
@@ -83,13 +83,26 @@ def get_section(file_path: str) -> list[list[dict]] | None:
 
 
 def main():
-    notes_section = _get_section("proseka/datas/song318.json")
-    for section in notes_section:
+    # notes_section_318 = _get_section("proseka/datas/song318.json")
+    # for section in notes_section_318:
+    #     fin = False
+    #     for n in section:
+    #         print(n)
+    #         if n.y >= 14:
+    #             fin = True
+    #     print("===============================")
+    #     if fin:
+    #         return
+
+    notes_section_155 = _get_section("score/data/m155.json")
+    for section in notes_section_155:
         fin = False
+        if section[0].y < 100 or 115 < section[0].y:
+            continue
+        if not (section[0].is_hold and section[1].is_hold):
+            continue
         for n in section:
             print(n)
-            if n.y >= 14:
-                fin = True
         print("===============================")
         if fin:
             return
