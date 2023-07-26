@@ -77,9 +77,10 @@ class FingeringHand:
 
     def can_push(self, note: Note) -> bool:
         if self.pushing:
-            if note.is_hold and note.hold_type is HoldType.END:
-                return True
+            if not note.is_hold:
+                return False
 
-            return False
+            if note.hold_type is HoldType.START or note.hold_type is HoldType.NONE:
+                return False
 
         return True
