@@ -10,20 +10,27 @@ def _get_section(file_path: str) -> list[list[Note]]:
     score: list[Note] = get_notes_score(file_path)
     section_groups: list[list[Note]] = []
     section: list[Note] = []
-    for i in range(len(score) - 1):
-        section.append(score[i])
+    i = 0
+    while i < len(score):
+        middle_count = 0
+        j = i
+        while j < len(score) and score[j].y == score[i].y:
+            section.append(score[j])
+            if score[j].hold_type == HoldType.MIDDLE:
+                middle_count += 1
+            j += 1
 
-        same_y = score[i].y == score[i + 1].y
-        is_middle = (
-            score[i].hold_type == HoldType.MIDDLE
-            or score[i + 1].hold_type == HoldType.MIDDLE
-        )
-        if not same_y or is_middle:
+        exist_same_y = i != j - 1
+        if not exist_same_y or middle_count + 1 == j - i:
+            i = j
             continue
 
-        section.append(score[i + 1])
+        # section.append(score[i + 1])
         section_groups.append(section)
-        section = [score[i]]
+        section = []
+        for k in range(i, j):
+            section.append(score[k])
+        i = j
     return section_groups
 
 
@@ -76,12 +83,16 @@ def get_section(file_path: str) -> list[list[dict]] | None:
 
 
 def main():
-    notes_section = _get_section("score/data/m155.json")
-    # pprint.pprint(notes_section)
-    # for section in notes_section:
-    #     print(len(section))
-    # if notes_section:
-    #     pprint.pprint(notes_section[2])
+    notes_section = _get_section("proseka/datas/song318.json")
+    for section in notes_section:
+        fin = False
+        for n in section:
+            print(n)
+            if n.y >= 14:
+                fin = True
+        print("===============================")
+        if fin:
+            return
 
 
 if __name__ == "__main__":
