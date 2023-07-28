@@ -78,6 +78,21 @@ def get_lr_fingering(
             continue
         # print(f"{notes=}")
         (id, note) = notes[0]
+        if note.is_hold:
+            _,l_notes = left.notes
+            _,r_notes = right.notes
+            if left.pushing and l_notes[-1].hole == note.hole:
+                left_cost = get_cost(left, note, id)
+                left.add_notes((id, note))
+                continue
+            
+            if right.pushing and r_notes[-1].hole == note.hole:
+                right_cost = get_cost(right, note, id)
+                right.add_notes((id, note))
+                continue
+            
+            print("[TODO] ホールドが3つ以上")
+        
         left_cost = get_cost(left, note, id)
         right_cost = get_cost(right, note, id)
         if left_cost <= right_cost:
@@ -256,13 +271,41 @@ def _get_fingering(
 #         # ---
 #     return fingering
 
+import glob
+import json
+import os
+
 
 def main():
-    fingering = _get_fingering("score/data/m155.json")
-    for f in fingering:
-        print(f["left"])
-        print(f["right"])
-    # pprint(fingering)
+    file_paths = glob.glob("./proseka/datas/*.json")
+    save_dir = "./score/data/_json/fingering"
+    os.makedirs(save_dir, exist_ok=True)
+    for path in file_paths:
+        fingering = _get_fingering(path)
+        left_notes = []
+        right_notes = []
+        for f in fingering:
+            _,l_notes = f["left"].notes
+            _,r_notes = f["right"].notes
+            if l_notes is None or r_notes is None:
+                print(path)
+                continue
+            
+            left_notes += [note.to_dict() for note in l_notes]
+            right_notes += [note.to_dict() for note in r_notes]
+        
+        
+        def unique(notes):
+            jsonize = [json.dumps(d, sort_keys=True) for d in notes]
+            set_json = list(dict.fromkeys(jsonize))
+            set_notes = [json.loads(d) for d in set_json]
+            return set_notes
+            
+        fingering_dict = {"left": unique(left_notes), "right": unique(right_notes)}
+        
+        name = os.path.splitext(os.path.basename(path))[0]
+        with open(f"{save_dir}/{name}.json", "w", newline="") as f:
+            json.dump(fingering_dict, f, indent=2, ensure_ascii=False)
 
 
 if __name__ == "__main__":
