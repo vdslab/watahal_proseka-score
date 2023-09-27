@@ -1,5 +1,21 @@
+import csv
+import glob
+import json
+import os
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn import preprocessing
+from sklearn.cluster import DBSCAN
+from sklearn.manifold import TSNE
+from sklearn.metrics import (  # silhouette_score,
+    accuracy_score,
+    f1_score,
+    multilabel_confusion_matrix,
+    precision_score,
+    recall_score,
+)
 from sklearn.neighbors import NearestNeighbors
 
 
@@ -23,9 +39,6 @@ def get_kdist_plot(X=None, k=None, radius_nbrs=1.0):
     plt.close()
 
 
-import csv
-
-
 def readCSV(file_path, parse_func) -> list[list]:
     data = None
     with open(file_path, newline="") as csvfile:
@@ -38,11 +51,6 @@ def readCSV(file_path, parse_func) -> list[list]:
             data.append(row_data)
 
     return data
-
-
-from sklearn.metrics import (accuracy_score, f1_score,
-                             multilabel_confusion_matrix, precision_score,
-                             recall_score)
 
 
 def acc_est(clustering_result, quiet=False):
@@ -119,21 +127,6 @@ def _est(clustering_result, sim_file_path, nsim_file_path, quiet=False):
     return accuracy, precision, recall, f1
 
 
-import csv
-import glob
-import json
-import os
-import pprint
-import sys
-
-import matplotlib.pyplot as plt
-import numpy as np
-from sklearn import preprocessing
-from sklearn.cluster import DBSCAN
-from sklearn.manifold import TSNE
-from sklearn.metrics import silhouette_score
-from umap import UMAP
-
 save_dir = "./data/_json/0729/clustering_result/umap"
 save_file_name = "clustering_data.csv"
 os.makedirs(save_dir, exist_ok=True)
@@ -156,7 +149,9 @@ for file_path in train_notes_file_paths:
         content = json.load(f)
         train_data2d.append(content["data"])
 
-train_data = preprocessing.StandardScaler().fit_transform(np.array(sum(train_data2d, [])))
+train_data = preprocessing.StandardScaler().fit_transform(
+    np.array(sum(train_data2d, []))
+)
 print("get train data")
 
 category_by_id = dict()
@@ -198,9 +193,11 @@ for file_path in notes_file_paths:
 
     clustering_result = DBSCAN(eps=0.14, min_samples=3).fit_predict(data)
     clustering_result += 1
-    
-    categories_by_label:dict[int, list[str]] = dict()
-    result_318 = clustering_result[len(train_data2d[0]): len(train_data2d[0])+len(train_data2d[1])]
+
+    categories_by_label: dict[int, list[str]] = dict()
+    result_318 = clustering_result[
+        len(train_data2d[0]) : len(train_data2d[0]) + len(train_data2d[1])
+    ]
     for i in ids_318:
         label = result_318[i]
         category = category_by_id[i]
@@ -209,8 +206,8 @@ for file_path in notes_file_paths:
         cs = categories_by_label.get(key, [""])
         categories_by_label[key] = ",".join(set(("，".join(set(cs))).split("，")))
     categories_by_label[0] = "その他"
-    categories_by_label:dict[int, str]
-    
+    categories_by_label: dict[int, str]
+
     # umap = UMAP(n_components=2, random_state=0)
     # dim_less_data = umap.fit_transform(data)
     tsne = TSNE(n_components=2, random_state=0)
@@ -223,7 +220,13 @@ for file_path in notes_file_paths:
         print(f"{len(_data)=}")
         raise RuntimeError
     clustering_data = [
-        [id, float(pos[0]), float(pos[1]), int(l), categories_by_label.get(int(l), None)]
+        [
+            id,
+            float(pos[0]),
+            float(pos[1]),
+            int(l),
+            categories_by_label.get(int(l), None),
+        ]
         for (pos, l) in zip(sep_data, sep_result)
     ]
 

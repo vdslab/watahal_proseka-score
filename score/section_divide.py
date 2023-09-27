@@ -1,5 +1,4 @@
 import json
-import pprint
 
 from arrange_score import get_notes_score
 from classes import Note
@@ -76,7 +75,7 @@ def get_section(file_path: str) -> list[list[dict]] | None:
 
 
 def main():
-    notes_section_155 = _get_section("score/data/m155.json")
+    # notes_section_155 = _get_section("score/data/m155.json")
     notes_section_318 = _get_section("proseka/datas/song318.json")
     for i, section in enumerate(notes_section_318):
         if i <= 505:

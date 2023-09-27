@@ -1,18 +1,18 @@
+import glob
 import json
-import math
-from pprint import pprint
+import os
+import re
 
-import constant
 import numpy
 from classes import Note
 from classes.types import NotesType
 from move_score import _get_fingering
-from section_divide import _get_section, get_section
+from section_divide import _get_section
 
 
 def _get_section_feature_vector(section: list[Note]):
     # 区間特徴
-    duration = section[-1].y - section[0].y
+    # duration = section[-1].y - section[0].y
 
     # ノーツの個数
     note_types_count = {type.name: 0 for type in list(NotesType)}
@@ -97,7 +97,7 @@ def _get_section_feature_vector(section: list[Note]):
                 step_nums.append(0)
 
     step_nums = list(filter(lambda x: x != 0, step_nums))
-    step_num_ave = sum(step_nums) / (len(step_nums)) if len(step_nums) != 0 else 0
+    # step_num_ave = sum(step_nums) / (len(step_nums)) if len(step_nums) != 0 else 0
 
     # 連続した個数
     consecutive_counts = [0]
@@ -162,9 +162,6 @@ def _get_feature_vector(section: list[Note], fingering: dict):
     return section_feature_vector
 
 
-import math
-
-
 def get_feature_vectors(notes_json_file_relative_path: str):
     notes_sections = _get_section(notes_json_file_relative_path)
     fingerings = _get_fingering(notes_json_file_relative_path)
@@ -182,10 +179,6 @@ def get_feature_vectors(notes_json_file_relative_path: str):
 
     return feature_vectors
 
-
-import glob
-import os
-import re
 
 if __name__ == "__main__":
     save_dir = "score/data/_json/feature_vector/test"

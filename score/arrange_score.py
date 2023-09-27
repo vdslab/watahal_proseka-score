@@ -1,9 +1,7 @@
 import json
-from pprint import pprint
 
 from classes.Notes import Note
 from classes.types import HoldType, JudgeType, NotesType
-from classes.types.HoldType import HoldType
 from constant import NOTES_EXPLAIN
 
 notes_explain_to_index = {
@@ -66,6 +64,7 @@ def main():
     score_file_path = "score/data/m155.json"
     notes_score = get_notes_score(score_file_path)
     notes_score_dict = [note.to_dict() for note in notes_score]
+    print(notes_score_dict[:3])
 
     # with open(save_path, "w") as f:
     #     json.dump(notes_score_dict, f, indent=2, ensure_ascii=False)
