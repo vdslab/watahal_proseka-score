@@ -8,7 +8,7 @@ save_dir = "./score/data/note_sims"
 save_file_name = "sim_label_318.csv"
 os.makedirs(save_dir, exist_ok=True)
 
-with open(f"{save_dir}/{save_file_name}", "w") as f:
+with open(f"{save_dir}/{save_file_name}", "w", newline="") as f:
     writer = csv.writer(f)
     writer.writerow(["id1", "id2", "label"])
 
@@ -66,7 +66,7 @@ ids = list(filter(lambda x: x is not None, ids))
 print(ids)
 
 
-with open(f"{save_dir}/{save_file_name}", "a") as f:
+with open(f"{save_dir}/{save_file_name}", "a", newline="") as f:
     writer = csv.writer(f)
     for i in range(len(ids)):
         for j in range(i + 1, len(ids)):
@@ -99,7 +99,7 @@ ids = list(filter(lambda x: x is not None, ids))
 print(ids)
 
 
-with open(f"{save_dir}/{save_file_name}", "a") as f:
+with open(f"{save_dir}/{save_file_name}", "a", newline="") as f:
     writer = csv.writer(f)
     for i in range(len(ids)):
         for j in range(i + 1, len(ids)):
@@ -127,7 +127,7 @@ ids = list(filter(lambda x: x is not None, ids))
 print(ids)
 
 
-with open(f"{save_dir}/{save_file_name}", "a") as f:
+with open(f"{save_dir}/{save_file_name}", "a", newline="") as f:
     writer = csv.writer(f)
     for i in range(len(ids)):
         for j in range(i + 1, len(ids)):
@@ -150,7 +150,7 @@ ids = list(filter(lambda x: x is not None, ids))
 print(ids)
 
 
-with open(f"{save_dir}/{save_file_name}", "a") as f:
+with open(f"{save_dir}/{save_file_name}", "a", newline="") as f:
     writer = csv.writer(f)
     for i in range(len(ids)):
         for j in range(i + 1, len(ids)):
@@ -158,14 +158,14 @@ with open(f"{save_dir}/{save_file_name}", "a") as f:
 
 
 ids = [207, 208, 209]
-with open(f"{save_dir}/{save_file_name}", "a") as f:
+with open(f"{save_dir}/{save_file_name}", "a", newline="") as f:
     writer = csv.writer(f)
     for i in range(len(ids)):
         for j in range(i + 1, len(ids)):
             writer.writerow([ids[i], ids[j], "階段"])
 
 ids = [402, 403, 414, 415, 509]
-with open(f"{save_dir}/{save_file_name}", "a") as f:
+with open(f"{save_dir}/{save_file_name}", "a", newline="") as f:
     writer = csv.writer(f)
     for i in range(len(ids)):
         for j in range(i + 1, len(ids)):

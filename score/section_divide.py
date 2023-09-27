@@ -3,7 +3,7 @@ import pprint
 
 from arrange_score import get_notes_score
 from classes import Note
-from classes.types import HoldType
+from classes.types import HoldType, NotesType
 
 
 def _get_section(file_path: str) -> list[list[Note]]:
@@ -76,12 +76,19 @@ def get_section(file_path: str) -> list[list[dict]] | None:
 
 
 def main():
-    notes_section = _get_section("score/data/m155.json")
-    # pprint.pprint(notes_section)
-    # for section in notes_section:
-    #     print(len(section))
-    # if notes_section:
-    #     pprint.pprint(notes_section[2])
+    notes_section_155 = _get_section("score/data/m155.json")
+    notes_section_318 = _get_section("proseka/datas/song318.json")
+    for i, section in enumerate(notes_section_318):
+        if i <= 505:
+            continue
+        if section[0].y + 1 >= 105:
+            break
+        print(f"======= {i} =============")
+        for note in section:
+            if note.type == NotesType.HOLD and note.hold_type == HoldType.MIDDLE:
+                continue
+            print(f"(x, y) = ({note.x}, {note.y+1})")
+        print("======================")
 
 
 if __name__ == "__main__":

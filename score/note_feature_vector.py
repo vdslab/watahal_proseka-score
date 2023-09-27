@@ -49,16 +49,30 @@ def _get_section_feature_vector(section: list[Note]):
     # 左右のブレの回数
     start, end = get_y_half_open_interval()
     flip_count = 0
+    flip_costs = []
     move_right = None
     for i in range(start, end - 1):
         if move_right is None:
             move_right = section[i].x < section[i + 1].x
+            flip_costs.append(abs(section[i].x - section[i + 1].x))
             continue
         if section[i].x < section[i + 1].x and not move_right:
             flip_count += 1
+            flip_costs.append(abs(section[i].x - section[i + 1].x))
         elif section[i + 1].x < section[i].x and move_right:
             flip_count += 1
+            flip_costs.append(abs(section[i].x - section[i + 1].x))
         move_right = section[i].x < section[i + 1].x
+
+    flip_cost_ave = sum(flip_costs) / len(flip_costs) if len(flip_costs) != 0 else 0
+
+    alternately_moving_distance = [0, 0]
+    for i in range(start, end):
+        if i - 2 >= start:
+            alternately_moving_distance[i % 2] += abs(section[i].x - section[i - 2].x)
+    alternately_moving_distance_ave = sum(alternately_moving_distance) / len(
+        alternately_moving_distance
+    )
 
     # 階段の段数
     step_nums = []
@@ -102,10 +116,12 @@ def _get_section_feature_vector(section: list[Note]):
 
     return [
         all_cnt,
-        move_sum,
-        flip_count * flip_count,
+        # move_sum,
+        flip_count,
+        flip_cost_ave,
+        alternately_moving_distance_ave,
         consecutive_count_ave,
-        step_num_ave,
+        # step_num_ave*1000,
     ]
 
 
@@ -177,6 +193,7 @@ if __name__ == "__main__":
     # os.path.splitext(os.path.basename(filepath))[0]
     notes_file_path_search = glob.glob("proseka/datas/*.json")
     notes_file_paths = [f for f in notes_file_path_search if "155" in f or "318" in f]
+    notes_file_paths = notes_file_path_search
     print(notes_file_paths)
     for file_path in notes_file_paths:
         fv = get_feature_vectors(file_path)
@@ -187,7 +204,7 @@ if __name__ == "__main__":
         except:
             raise RuntimeError("cannot convert id")
 
-        save_file_name = f"{save_file_name_base}_[cnt_move_flip2_continue_step]_fv.json"
+        save_file_name = f"{save_file_name_base}_[test]_fv.json"
         jsondata = {"id": id, "data": fv}
         with open(f"{save_dir}/{save_file_name}", "w", newline="") as sf:
             json.dump(jsondata, sf, indent=2, ensure_ascii=False)
