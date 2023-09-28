@@ -127,6 +127,7 @@ def _est(clustering_result, sim_file_path, nsim_file_path, quiet=False):
     return accuracy, precision, recall, f1
 
 
+# 保存先のファイル作成と列名記述
 save_dir = "./data/_json/0729/clustering_result/umap"
 save_file_name = "clustering_data.csv"
 os.makedirs(save_dir, exist_ok=True)
@@ -135,10 +136,12 @@ with open(f"{save_dir}/{save_file_name}", "w", newline="") as f:
     writer.writerow(["id", "x", "y", "label", "category"])
 print("make save file")
 
+
 print(sys.path)
 notes_file_paths = glob.glob(
     "./score/data/_json/feature_vector/test/*[[]test[]]*.json*"
 )
+# 学習元のデータ取得
 train_notes_file_paths = [f for f in notes_file_paths if "155" in f]
 train_notes_file_paths += [f for f in notes_file_paths if "318" in f]
 train_data2d = []
@@ -154,6 +157,7 @@ train_data = preprocessing.StandardScaler().fit_transform(
 )
 print("get train data")
 
+# カテゴリ名の取得
 category_by_id = dict()
 ids_318 = set()
 sim_data_label = None
@@ -177,6 +181,7 @@ for file_path in notes_file_paths:
     print(file_path)
     # if "155" in file_path or "318" in file_path:
     #     continue
+    # データ準備
     _data = None
     id = None
     with open(file_path, newline="") as f:
@@ -198,10 +203,12 @@ for file_path in notes_file_paths:
     result_318 = clustering_result[
         len(train_data2d[0]) : len(train_data2d[0]) + len(train_data2d[1])
     ]
+    # ラベルごとにカテゴリ名の配列を作成
     for i in ids_318:
         label = result_318[i]
         category = category_by_id[i]
         categories_by_label[label] = categories_by_label.get(label, []) + [category]
+    # 文字列として加工しなおす
     for key in categories_by_label:
         cs = categories_by_label.get(key, [""])
         categories_by_label[key] = ",".join(set(("，".join(set(cs))).split("，")))
@@ -210,6 +217,7 @@ for file_path in notes_file_paths:
 
     # umap = UMAP(n_components=2, random_state=0)
     # dim_less_data = umap.fit_transform(data)
+    # 次元削減
     tsne = TSNE(n_components=2, random_state=0)
     dim_less_data = tsne.fit_transform(data)
 
@@ -219,6 +227,8 @@ for file_path in notes_file_paths:
         print(f"{len(sep_data)=}")
         print(f"{len(_data)=}")
         raise RuntimeError
+
+    # 列名に合うように加工
     clustering_data = [
         [
             id,
