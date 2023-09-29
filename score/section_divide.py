@@ -18,6 +18,7 @@ def _get_section(file_path: str) -> list[list[Note]]:
             or score[i + 1].hold_type == HoldType.MIDDLE
         )
         if not same_y or is_middle:
+            # TODO: 現在のindexで最後ならcontinueでなく下の処理をしたい
             continue
 
         section.append(score[i + 1])
