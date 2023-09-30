@@ -43,8 +43,10 @@ for base_id in ids:
             dists = sorted(dists)
             sim_by_id[base_id][id] += sum(dists[:20])
 
-# pprint.pprint(sim_by_id)
-for key_id in sim_by_id:
-    print(f"{key_id=}")
-    sims = sorted(sim_by_id[key_id].items(), key=lambda x: x[1])
-    pprint.pprint(sims)
+with open("./data/similarities.csv", "w") as f:
+    writer = csv.writer(f)
+    writer.writerow(["base_id", "target_id", "similarity"])
+    for base_id in sim_by_id:
+        id_sims = sorted(sim_by_id[base_id].items(), key=lambda x: x[1])
+        for target_id, sim in id_sims:
+            writer.writerow([base_id, target_id, sim])
