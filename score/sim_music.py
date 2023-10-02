@@ -1,7 +1,6 @@
 import csv
 import math
 import os
-import pprint
 import sys
 
 from sklearn.metrics.pairwise import cosine_similarity
@@ -130,5 +129,3 @@ for base_id in ids:
         save_file_path, source_id=base_id, similarity_by_id=sim_by_id[base_id]
     )
     print(f"made id:{base_id} file\n")
-
-    break
