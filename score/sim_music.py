@@ -1,24 +1,41 @@
 import csv
 import math
+import os
 import pprint
 import sys
 
+from sklearn.metrics.pairwise import cosine_similarity
 
-def Print(string):
-    sys.stdout.write("\033[2K\033[G")
-    sys.stdout.write(string)
-    sys.stdout.flush()
 
+def logger(func):
+    def _wrapped(*args, **kwargs):
+        sys.stdout.write("\033[2K\033[G")
+        sys.stdout.write(f"do {func.__name__}...")
+        sys.stdout.flush()
+
+        v = func(*args, **kwargs)
+
+        sys.stdout.write("\033[2K\033[G")
+        sys.stdout.write(f"done {func.__name__}...")
+        sys.stdout.flush()
+
+        return v
+
+    return _wrapped
+
+
+save_dir_path = "./data/sims"
+os.makedirs(save_dir_path, exist_ok=True)
 
 clustering_data_path = "./data/_json/0930/clustering_result/clustering_data.csv"
 data = []
-Print("loading data...")
+logger("loading data...")
 with open(clustering_data_path) as f:
     reader = csv.DictReader(f)
     data = list(reader)
 print("done")
 
-Print("processing data...")
+logger("processing data...")
 for i, d in enumerate(data):
     id = int(d["id"])
     category = None if d["category"] == "" else d["category"]
@@ -28,11 +45,11 @@ for i, d in enumerate(data):
     data[i] = {"id": id, "category": category, "label": label, "x": x, "y": y}
 print("done")
 
-Print("get ids...")
+logger("get ids...")
 ids = list({d["id"] for d in data})
 print("done")
 
-Print("get positions...")
+logger("get positions...")
 data_by_id = dict()
 for id in ids:
     data_by_id[id] = dict()
@@ -45,23 +62,33 @@ print("done")
 
 sim_by_id = dict()
 for base_id in ids:
-    Print("calculating similarity...")
+    logger("calculating similarity...")
     sim_by_id[base_id] = dict()
-    for pos in data_by_id[base_id]["positions"]:
-        for id in ids:
-            if id == base_id:
-                continue
-            dists = []
-            sim_by_id[base_id][id] = 0
+    base_positions = data_by_id[base_id]["positions"]
+    for id in ids:
+        sim_metrics = cosine_similarity(base_positions, data_by_id[id]["positions"])
+        ave_sims = []
+        for sims in sim_metrics:
+            order_sims = sorted(sims, reverse=True)
+            slice_sims = order_sims[:20]
+            ave_sims.append(sum(slice_sims) / len(slice_sims))
+        sim_by_id[base_id][id] = sum(ave_sims) / len(ave_sims)
+    # for pos in data_by_id[base_id]["positions"]:
+    #     for id in ids:
+    #         if id == base_id:
+    #             continue
+    #         dists = []
+    #         sim_by_id[base_id][id] = 0
 
-            for target_pos in data_by_id[id]["positions"]:
-                dists.append(math.dist(pos, target_pos))
-            dists = sorted(dists)
-            sim_by_id[base_id][id] += sum(dists[:20])
-    print("done")
+    #         for target_pos in data_by_id[id]["positions"]:
+    #             dists.append(math.dist(pos, target_pos))
+    #         dists = sorted(dists)
+    #         sim_by_id[base_id][id] += sum(dists[:20])
 
-    Print(f"make {base_id} file...")
-    save_file_path = f"./data/similarities_{base_id}.csv"
+    logger(f"make {base_id} file...")
+
+    save_file_name = f"similarities_{base_id}.csv"
+    save_file_path = os.path.join(save_dir_path, save_file_name)
     with open(save_file_path, "w") as f:
         writer = csv.writer(f)
         writer.writerow(["base_id", "target_id", "similarity"])
@@ -70,3 +97,5 @@ for base_id in ids:
             for target_id, sim in id_sims:
                 writer.writerow([base_id, target_id, sim])
     print("done")
+
+    break
