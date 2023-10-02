@@ -62,6 +62,21 @@ def cos_similarity(vec1, vec2) -> float:
     return ave_sim_metrics
 
 
+# @logger
+# def euclidean_sim():
+#     for pos in data_by_id[base_id]["positions"]:
+#         for id in ids:
+#             if id == base_id:
+#                 continue
+#             dists = []
+#             sim_by_id[base_id][id] = 0
+
+#             for target_pos in data_by_id[id]["positions"]:
+#                 dists.append(math.dist(pos, target_pos))
+#             dists = sorted(dists)
+#             sim_by_id[base_id][id] += sum(dists[:20])
+
+
 @logger
 def save_similarity(
     save_file_path: str, source_id: str, similarity_by_id: dict[int, float]
@@ -73,59 +88,48 @@ def save_similarity(
             writer.writerow([source_id, target_id, similarity])
 
 
-save_dir_path = "./data/sims"
-os.makedirs(save_dir_path, exist_ok=True)
+def save_cos_similarity_all_combinations(
+    vec_2dim_by_id: dict[int, list[list[float]]], save_dir_path: str
+):
+    """全ての組み合わせの類似度を計算して保存する
+    # 引数
+    - vec_2dim_by_id: { id_1: [[value_1, value_1, ..., value_n], ...], ... }
+    - save_dir_path: 保存先ディレクトリパス
+    ## vec_2dim_by_idの例:
+    - { 1: [ [1, 2, 3], [4, 5, 6] ], 2: [ [7, 8, 9], [10, 11, 12] ] }
+    ## 注意:
+    - 各要素数は同じである必要がある
+    - 保存される名前は `similarities_{id}.csv` となる
+    """
 
-clustering_data_path = "./data/_json/0930/clustering_result/clustering_data.csv"
-data = load_dict_csv(clustering_data_path)
-data = trim_data(data)
-
-ids = list({d["id"] for d in data})
-
-data_by_id = dict()
-for id in ids:
-    data_by_id[id] = dict()
-    id_data = [d for d in data if d["id"] == id]
-    positions = [(d["x"], d["y"]) for d in id_data]
-    data_by_id[id]["positions"] = positions
-
-
-sim_by_id = dict()
-for base_id in ids:
-    print("calculating similarity...")
-    sim_by_id[base_id] = dict()
-    base_positions = data_by_id[base_id]["positions"]
-
-    @logger
-    def calc_sim():
-        for id in ids:
-            if id == base_id:
+    for source_id, source_vec_2dim in vec_2dim_by_id.items():
+        similarity_by_id = dict()
+        for target_id, target_vec_2dim in vec_2dim_by_id.items():
+            if source_id == target_id:
                 continue
-
-            sim_by_id[base_id][id] = cos_similarity(
-                base_positions, data_by_id[id]["positions"]
+            similarity_by_id[target_id] = cos_similarity(
+                source_vec_2dim, target_vec_2dim
             )
 
-    @logger
-    def euclidean_sim():
-        for pos in data_by_id[base_id]["positions"]:
-            for id in ids:
-                if id == base_id:
-                    continue
-                dists = []
-                sim_by_id[base_id][id] = 0
+        save_file_name = f"similarities_{source_id}.csv"
+        save_file_path = os.path.join(save_dir_path, save_file_name)
+        save_similarity(save_file_path, source_id, similarity_by_id)
 
-                for target_pos in data_by_id[id]["positions"]:
-                    dists.append(math.dist(pos, target_pos))
-                dists = sorted(dists)
-                sim_by_id[base_id][id] += sum(dists[:20])
 
-    calc_sim()
-    # euclidean_sim()
+if __name__ == "__main__":
+    save_dir_path = "./data/sims"
+    os.makedirs(save_dir_path, exist_ok=True)
 
-    save_file_name = f"similarities_{base_id}.csv"
-    save_file_path = os.path.join(save_dir_path, save_file_name)
-    save_similarity(
-        save_file_path, source_id=base_id, similarity_by_id=sim_by_id[base_id]
-    )
-    print(f"made id:{base_id} file\n")
+    clustering_data_path = "./data/_json/0930/clustering_result/clustering_data.csv"
+    data = load_dict_csv(clustering_data_path)
+    data = trim_data(data)
+
+    ids = list({d["id"] for d in data})
+
+    data_by_id = dict()
+    for id in ids:
+        id_data = [d for d in data if d["id"] == id]
+        positions = [(d["x"], d["y"]) for d in id_data]
+        data_by_id[id] = positions
+
+    save_cos_similarity_all_combinations(data_by_id, save_dir_path)
