@@ -88,6 +88,7 @@ def save_similarity(
             writer.writerow([source_id, target_id, similarity])
 
 
+@logger
 def save_cos_similarity_all_combinations(
     vec_2dim_by_id: dict[int, list[list[float]]], save_dir_path: str
 ):
@@ -116,7 +117,8 @@ def save_cos_similarity_all_combinations(
         save_similarity(save_file_path, source_id, similarity_by_id)
 
 
-if __name__ == "__main__":
+@logger
+def similarity_from_dim_reduce():
     save_dir_path = "./data/sims"
     os.makedirs(save_dir_path, exist_ok=True)
 
@@ -133,3 +135,7 @@ if __name__ == "__main__":
         data_by_id[id] = positions
 
     save_cos_similarity_all_combinations(data_by_id, save_dir_path)
+
+
+if __name__ == "__main__":
+    similarity_from_dim_reduce()
