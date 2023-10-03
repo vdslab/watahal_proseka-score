@@ -1,4 +1,6 @@
 import csv
+import glob
+import json
 import math
 import os
 import sys
@@ -137,5 +139,23 @@ def similarity_from_dim_reduce():
     save_cos_similarity_all_combinations(data_by_id, save_dir_path)
 
 
+@logger
+def similarity_from_feature_vector():
+    save_dir_path = "./data/sims"
+    os.makedirs(save_dir_path, exist_ok=True)
+    feature_vector_file_path = glob.glob(
+        "./score/data/_json/feature_vector/test/*[[]test[]]*.json*"
+    )
+
+    data_by_id = dict()
+    for path in feature_vector_file_path:
+        with open(path) as f:
+            feature_vector_data = json.load(f)
+            data_by_id[feature_vector_data["id"]] = feature_vector_data["data"]
+
+    save_cos_similarity_all_combinations(data_by_id, save_dir_path)
+
+
 if __name__ == "__main__":
     similarity_from_dim_reduce()
+    # similarity_from_feature_vector()
