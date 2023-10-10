@@ -1,4 +1,7 @@
+import glob
 import json
+import os
+import re
 
 from classes.Notes import Note
 from classes.types import HoldType, JudgeType, NotesType
@@ -53,21 +56,22 @@ def get_notes_score(file_path: str) -> list[Note]:
 
 
 def main():
-    # save_dir = "score/data"
-    # save_file_name = "_notes-test.json"
-    # save_path = (
-    #     save_dir + save_file_name
-    #     if save_dir[-1] == "/"
-    #     else f"{save_dir}/{save_file_name}"
-    # )
+    save_dir = "score/data/notes_score"
+    os.makedirs(save_dir, exist_ok=True)
 
-    score_file_path = "score/data/m155.json"
-    notes_score = get_notes_score(score_file_path)
-    notes_score_dict = [note.to_dict() for note in notes_score]
-    print(notes_score_dict[:3])
+    file_paths = glob.glob("./proseka/datas/*.json")
 
-    # with open(save_path, "w") as f:
-    #     json.dump(notes_score_dict, f, indent=2, ensure_ascii=False)
+    for path in file_paths:
+        notes_score = get_notes_score(path)
+        notes_score_dict = [note.to_dict() for note in notes_score]
+
+        id_ = re.search(r"\d+", path).group()
+        save_file_name = f"{id_}.json"
+
+        save_path = os.path.join(save_dir, save_file_name)
+        with open(save_path, "w") as f:
+            json.dump(notes_score_dict, f, indent=2, ensure_ascii=False)
+        # break
 
 
 if __name__ == "__main__":
