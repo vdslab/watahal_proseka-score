@@ -117,6 +117,7 @@ def save_cos_similarity_all_combinations(
         save_file_name = f"similarities_{source_id}.csv"
         save_file_path = os.path.join(save_dir_path, save_file_name)
         save_similarity(save_file_path, source_id, similarity_by_id)
+        print("saved", save_file_path)
 
 
 @logger
