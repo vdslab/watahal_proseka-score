@@ -7,6 +7,3 @@ matplotlib
 scikit-learn
 umap-learn
 setuptools
-glob
-os
-math

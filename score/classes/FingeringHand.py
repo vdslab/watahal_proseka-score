@@ -18,6 +18,12 @@ class FingeringHand:
 
     def __str__(self):
         return f"FingeringHand; cost:{self.__cost}, notes:{self.__notes}"
+    
+    def to_dict(self):
+        return {
+            "cost": self.__cost,
+            "notes": [note.to_dict() for note in self.__notes]
+        }
 
     @property
     def x(self):

@@ -1,9 +1,8 @@
 import json
-import pprint
 
 from arrange_score import get_notes_score
 from classes import Note
-from classes.types import HoldType
+from classes.types import HoldType, NotesType
 
 
 def _get_section(file_path: str) -> list[list[Note]]:
