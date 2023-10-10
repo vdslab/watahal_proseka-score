@@ -2,7 +2,7 @@ import json
 
 from arrange_score import get_notes_score
 from classes import Note
-from classes.types import HoldType, NotesType
+from classes.types import HoldType
 
 
 def _get_section(file_path: str) -> list[list[Note]]:
@@ -11,25 +11,36 @@ def _get_section(file_path: str) -> list[list[Note]]:
     section: list[Note] = []
     i = 0
     while i < len(score):
-        contain_middle = False
         j = i
-        while j < len(score) and score[j].y == score[i].y:
-            section.append(score[j])
-            if score[j].hold_type == HoldType.MIDDLE:
-                contain_middle = True
+        same_y_start_id = j
+        same_y = False
+        same_y_middle_count = 0
+        while j + 1 < len(score):
+            if same_y and score[j].hold_type == HoldType.MIDDLE:
+                same_y_middle_count += 1
+
+            if same_y and score[j].y != score[j + 1].y:
+                count = j - same_y_start_id + 1
+                if same_y_middle_count / count <= 0.5:
+                    break
+
+                same_y = False
+                same_y_start_id = j
+
+            if score[j].y == score[j + 1].y:
+                same_y = True
+                same_y_start_id = j
+
             j += 1
 
-        exist_same_y = i != j - 1
-        if not exist_same_y or contain_middle:
-            i = j
-            continue
-
-        # section.append(score[i + 1])
-        section_groups.append(section)
-        section = []
-        for k in range(i, j):
+        for k in range(i, min(j + 1, len(score))):
             section.append(score[k])
-        i = j
+        section_groups.append(section)
+        section.clear()
+        for k in range(same_y_start_id, min(j + 1, len(score))):
+            section.append(score[k])
+
+        i = j + 1
     return section_groups
 
 
