@@ -66,7 +66,7 @@ def main():
         notes_score_dict = [note.to_dict() for note in notes_score]
 
         id_ = re.search(r"\d+", path).group()
-        save_file_name = f"{id_}.json"
+        save_file_name = f"score-{id_}.json"
 
         save_path = os.path.join(save_dir, save_file_name)
         with open(save_path, "w") as f:
