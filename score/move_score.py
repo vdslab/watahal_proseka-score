@@ -59,7 +59,16 @@ def get_lr_fingering(
     # 運指の作成
     for i, notes in enumerate(id_and_notes_by_y.values()):
         if len(notes) > 2:
-            print("[TODO] 同時押しが3つ以上")
+            notes.sort(key=lambda x: x[1].x)
+            for i, note in notes:
+                if i < len(notes) // 2:
+                    left_cost = get_cost(left, note, i)
+                    left.add_notes((i, note))
+                    left.add_cost(left_cost)
+                else:
+                    right_cost = get_cost(right, note, i)
+                    right.add_notes((i, note))
+                    right.add_cost(right_cost)
             continue
 
         if len(notes) == 2:
