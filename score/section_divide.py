@@ -9,38 +9,37 @@ def _get_section(file_path: str) -> list[list[Note]]:
     score: list[Note] = get_notes_score(file_path)
     section_groups: list[list[Note]] = []
     section: list[Note] = []
-    i = 0
-    while i < len(score):
-        j = i
-        same_y_start_id = j
-        same_y = False
-        same_y_middle_count = 0
-        while j + 1 < len(score):
-            if same_y and score[j].hold_type == HoldType.MIDDLE:
-                same_y_middle_count += 1
 
-            if same_y and score[j].y != score[j + 1].y:
-                count = j - same_y_start_id + 1
-                if same_y_middle_count / count <= 0.5:
-                    break
+    score_by_y: dict[float, list[Note]] = dict()
+    for note in score:
+        score_by_y.setdefault(note.y, []).append(note)
 
-                same_y = False
-                same_y_start_id = j
+    score_by_y_ordered: list[tuple[float, list[Note]]] = sorted(
+        score_by_y.items(), key=lambda x: x[0]
+    )
+    for y, notes in score_by_y_ordered:
+        if len(notes) == 1:
+            section.append(notes[0])
+            continue
 
-            if score[j].y == score[j + 1].y:
-                same_y = True
-                same_y_start_id = j
+        section += notes
 
-            j += 1
+        have_middle = False
+        for note in notes:
+            if note.hold_type == HoldType.MIDDLE:
+                have_middle = True
+                break
 
-        for k in range(i, min(j + 1, len(score))):
-            section.append(score[k])
+        if have_middle:
+            continue
+
+        section_groups.append(section)
+        section = notes
+
+    if not section == score_by_y_ordered[-1][1]:
         section_groups.append(section)
         section.clear()
-        for k in range(same_y_start_id, min(j + 1, len(score))):
-            section.append(score[k])
 
-        i = j + 1
     return section_groups
 
 
@@ -105,6 +104,7 @@ def main():
     #         return
 
     notes_section_155 = _get_section("score/data/m155.json")
+    print(len(notes_section_155), len(notes_section_155[0]))
     for section in notes_section_155:
         fin = False
         if section[0].y < 100 or 115 < section[0].y:
