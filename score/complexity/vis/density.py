@@ -27,8 +27,9 @@ def get_y_density(score_ys: list[int], *, separate_measure: int = 1) -> list[int
         bins=(max(score_ys) + 1) // separate_measure,
         range=(0, max(score_ys) + 1),
     )
-    print(f"{bins=}")
-    return hist
+    density = np.array(hist, dtype="float64") / separate_measure
+
+    return density
 
 
 if __name__ == "__main__":
