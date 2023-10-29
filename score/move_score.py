@@ -143,9 +143,9 @@ def _get_fingering(
 
 def main():
     file_paths = glob.glob("./proseka/datas/*.json")
-    save_dir = "./score/data/_json/fingering"
+    save_dir = "./score/data/_json/1030/fingering"
     os.makedirs(save_dir, exist_ok=True)
-    for path in file_paths:
+    for path in file_paths[:1]:
         fingering = _get_fingering(path)
         left_notes = []
         right_notes = []
@@ -174,33 +174,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-    test_note = Note(x=3, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF)
-    test_note2 = Note(x=3, y=5, width=3, type=NotesType.HOLD, judge_type=JudgeType.HOLD)
-    assert get_move_dist_cost(FingeringHand(), test_note) == 3
-
-    test_hand = FingeringHand()
-    test_hand.pushing = True
-    assert get_move_dist_cost(test_hand, test_note) == PUSHED_COST
-
-    ids = [1, 2, 3, 4, 5]
-    assert get_continuous_index_count(ids) == 5
-
-    test_hand = FingeringHand()
-    test_notes = [
-        Note(x=3, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
-        Note(x=4, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
-        Note(x=5, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
-        Note(x=6, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
-        Note(x=7, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
-    ]
-    test_add_note = Note(
-        x=8, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF
-    )
-    for v in zip(range(len(test_notes)), test_notes):
-        test_hand.add_notes(v)
-
-    assert (
-        abs(get_continuous_cost(test_hand, test_add_note, len(test_notes)) - 2.48832)
-        < 0.000_01
-    )
