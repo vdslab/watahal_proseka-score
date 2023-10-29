@@ -21,7 +21,7 @@ def get_score_pos(file_path: str) -> list[dict] | None:
     return score_pos
 
 
-def get_y_density(score_ys: list[int], *, separate_measure: int = 1) -> list[int]:
+def calc_y_density(score_ys: list[int], *, separate_measure: int = 1) -> list[int]:
     hist, bins = np.histogram(
         score_ys,
         bins=(max(score_ys) + 1) // separate_measure,
@@ -32,6 +32,15 @@ def get_y_density(score_ys: list[int], *, separate_measure: int = 1) -> list[int
     return density
 
 
+def get_y_density(notes_data_path: str, *, separate_measure: int = 1):
+    score_pos = get_score_pos(notes_data_path)
+    if score_pos is None:
+        return None
+
+    ys = list(map(lambda note: note["y"], score_pos))
+    return calc_y_density(ys, separate_measure=separate_measure)
+
+
 if __name__ == "__main__":
     score_file_paths = glob.glob("score/data/notes_score/*.json")
     score_file_paths = sorted(
@@ -39,10 +48,4 @@ if __name__ == "__main__":
     )
 
     for path in score_file_paths[:1]:
-        score_pos = get_score_pos(path)
-        if score_pos is None:
-            print(f"Error. not found score: {path}")
-            continue
-
-        ys = list(map(lambda note: note["y"], score_pos))
-        pprint(get_y_density(ys))
+        pprint(get_y_density(path))
