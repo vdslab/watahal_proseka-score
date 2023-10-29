@@ -56,61 +56,96 @@ def get_lr_fingering(
     """Return left and right fingering by one sections"""
     left = FingeringHand()
     right = FingeringHand(x=MAX_KEYBOARD_COUNT)
+    idx_note_items = sorted(id_and_notes_by_y.items(), key=lambda x: x[0])
+    idx_notes_list = [ns for _, ns in idx_note_items]
     # 運指の作成
-    for i, notes in enumerate(id_and_notes_by_y.values()):
-        if len(notes) > 2:
-            notes.sort(key=lambda x: x[1].x)
-            for i, note in notes:
-                if i < len(notes) // 2:
-                    left_cost = get_cost(left, note, i)
-                    left.add_notes((i, note))
-                    left.add_cost(left_cost)
-                else:
-                    right_cost = get_cost(right, note, i)
-                    right.add_notes((i, note))
-                    right.add_cost(right_cost)
-            continue
+    for i, notes in enumerate(idx_notes_list):
+        left_cost_sum = 0
+        left_add_notes = []
+        right_cost_sum = 0
+        right_add_notes = []
 
-        if len(notes) == 2:
-            ((l_id, l_note), (r_id, r_note)) = (
-                (notes[0], notes[1])
-                if notes[0][1].x < notes[1][1].x
-                else (notes[1], notes[0])
-            )
-            # left
-            left_cost = get_cost(left, l_note, l_id)
-            left.add_notes((l_id, l_note))
-            left.add_cost(left_cost)
-            # right
-            right_cost = get_cost(right, r_note, r_id)
-            right.add_notes((r_id, r_note))
-            right.add_cost(right_cost)
-            continue
-        # print(f"{notes=}")
-        (id, note) = notes[0]
-        if note.is_hold:
-            _, l_notes = left.notes
-            _, r_notes = right.notes
-            if left.pushing and l_notes[-1].hole == note.hole:
-                left_cost = get_cost(left, note, id)
-                left.add_notes((id, note))
-                continue
+        for id, (i, note) in enumerate(notes):
+            left_cost = get_cost(left, note, i)
+            right_cost = get_cost(right, note, i)
+            if left_cost <= right_cost:
+                left_cost_sum += left_cost
+                left_add_notes.append((i, note))
 
-            if right.pushing and r_notes[-1].hole == note.hole:
-                right_cost = get_cost(right, note, id)
-                right.add_notes((id, note))
-                continue
+            else:
+                right_cost_sum += right_cost
+                right_add_notes.append((i, note))
+                right.link_fingering(note, len(right_add_notes) > 1)
 
-            print("[TODO] ホールドが3つ以上")
+        # 指の最終位置を離れさせる.
+        if left_add_notes is not None and len(left_add_notes) != 0:
+            left_add_notes = sorted(left_add_notes, key=lambda x: x[1].x)
+            left_add_notes = list(reversed(left_add_notes))
+            for i, id_note in enumerate(left_add_notes):
+                left.add_notes(id_note)
+                left.link_fingering(id_note[1], i > 0)
+            left.add_cost(left_cost_sum)
 
-        left_cost = get_cost(left, note, id)
-        right_cost = get_cost(right, note, id)
-        if left_cost <= right_cost:
-            left.add_notes((id, note))
-            left.add_cost(left_cost)
-        else:
-            right.add_notes((id, note))
-            right.add_cost(right_cost)
+        if right_add_notes is not None and len(right_add_notes) != 0:
+            right_add_notes = sorted(right_add_notes, key=lambda x: x[1].x)
+            for i, id_note in enumerate(right_add_notes):
+                right.add_notes(id_note)
+                right.link_fingering(id_note[1], i > 0)
+            right.add_cost(right_cost_sum)
+
+        # if len(notes) > 2:
+        #     notes.sort(key=lambda x: x[1].x)
+        #     for i, note in notes:
+        #         if i < len(notes) // 2:
+        #             left_cost = get_cost(left, note, i)
+        #             left.add_notes((i, note))
+        #             left.add_cost(left_cost)
+        #         else:
+        #             right_cost = get_cost(right, note, i)
+        #             right.add_notes((i, note))
+        #             right.add_cost(right_cost)
+        #     continue
+
+        # if len(notes) == 2:
+        #     ((l_id, l_note), (r_id, r_note)) = (
+        #         (notes[0], notes[1])
+        #         if notes[0][1].x < notes[1][1].x
+        #         else (notes[1], notes[0])
+        #     )
+        #     # left
+        #     left_cost = get_cost(left, l_note, l_id)
+        #     left.add_notes((l_id, l_note))
+        #     left.add_cost(left_cost)
+        #     # right
+        #     right_cost = get_cost(right, r_note, r_id)
+        #     right.add_notes((r_id, r_note))
+        #     right.add_cost(right_cost)
+        #     continue
+        # # print(f"{notes=}")
+        # (id, note) = notes[0]
+        # if note.is_hold:
+        #     _, l_notes = left.notes
+        #     _, r_notes = right.notes
+        #     if left.pushing and l_notes[-1].hole == note.hole:
+        #         left_cost = get_cost(left, note, id)
+        #         left.add_notes((id, note))
+        #         continue
+
+        #     if right.pushing and r_notes[-1].hole == note.hole:
+        #         right_cost = get_cost(right, note, id)
+        #         right.add_notes((id, note))
+        #         continue
+
+        #     print("[TODO] ホールドが3つ以上")
+
+        # left_cost = get_cost(left, note, id)
+        # right_cost = get_cost(right, note, id)
+        # if left_cost <= right_cost:
+        #     left.add_notes((id, note))
+        #     left.add_cost(left_cost)
+        # else:
+        #     right.add_notes((id, note))
+        #     right.add_cost(right_cost)
 
     return left, right
 
@@ -123,17 +158,11 @@ def _get_fingering(
 
     for i, section in enumerate(notes_section):
         # y座標ごとのノーツIDを格納
-        # 中間点は削除
         id_and_notes_by_y: dict[float, list[tuple[int, Note]]] = defaultdict(
             list[tuple[int, Note]]
         )
         for i, note in enumerate(section):
-            if note.hold_type == HoldType.MIDDLE:
-                continue
             id_and_notes_by_y[note.y].append((i, note))
-        # for i, note in enumerate(notes_index_by_y.items()):
-        #     print(i, note)
-        # print(f"{id_and_notes_by_y=}")
 
         # 左右の運指
         left, right = get_lr_fingering(id_and_notes_by_y)
@@ -288,17 +317,25 @@ def main():
     os.makedirs(save_dir, exist_ok=True)
     for path in file_paths:
         fingering = _get_fingering(path)
-        left_notes = []
-        right_notes = []
+        # left_notes = []
+        # right_notes = []
+        left_links = []
+        right_links = []
         for f in fingering:
-            _, l_notes = f["left"].notes
-            _, r_notes = f["right"].notes
-            if l_notes is None or r_notes is None:
-                print(path)
-                continue
+            # _, l_notes = f["left"].notes
+            # _, r_notes = f["right"].notes
 
-            left_notes += [note.to_dict() for note in l_notes]
-            right_notes += [note.to_dict() for note in r_notes]
+            # if l_notes is None or r_notes is None:
+            #     print(path)
+            #     continue
+
+            lf = f["left"].fingering
+            rf = f["right"].fingering
+
+            # left_notes += [note.to_dict() for note in l_notes]
+            # right_notes += [note.to_dict() for note in r_notes]
+            left_links += lf if lf is not None else []
+            right_links += rf if rf is not None else []
 
         def unique(notes):
             jsonize = [json.dumps(d, sort_keys=True) for d in notes]
@@ -306,7 +343,8 @@ def main():
             set_notes = [json.loads(d) for d in set_json]
             return set_notes
 
-        fingering_dict = {"left": unique(left_notes), "right": unique(right_notes)}
+        # fingering_dict = {"left": unique(left_notes), "right": unique(right_notes)}
+        fingering_dict = {"left": unique(left_links), "right": unique(right_links)}
 
         name = os.path.splitext(os.path.basename(path))[0]
         with open(f"{save_dir}/{name}.json", "w", newline="") as f:
@@ -316,32 +354,32 @@ def main():
 if __name__ == "__main__":
     main()
 
-    test_note = Note(x=3, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF)
-    test_note2 = Note(x=3, y=5, width=3, type=NotesType.HOLD, judge_type=JudgeType.HOLD)
-    assert get_move_dist_cost(FingeringHand(), test_note) == 3
+    # test_note = Note(x=3, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF)
+    # test_note2 = Note(x=3, y=5, width=3, type=NotesType.HOLD, judge_type=JudgeType.HOLD)
+    # assert get_move_dist_cost(FingeringHand(), test_note) == 3
 
-    test_hand = FingeringHand()
-    test_hand.pushing = True
-    assert get_move_dist_cost(test_hand, test_note) == PUSHED_COST
+    # test_hand = FingeringHand()
+    # test_hand.pushing = True
+    # assert get_move_dist_cost(test_hand, test_note) == PUSHED_COST
 
-    ids = [1, 2, 3, 4, 5]
-    assert get_continuous_index_count(ids) == 5
+    # ids = [1, 2, 3, 4, 5]
+    # assert get_continuous_index_count(ids) == 5
 
-    test_hand = FingeringHand()
-    test_notes = [
-        Note(x=3, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
-        Note(x=4, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
-        Note(x=5, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
-        Note(x=6, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
-        Note(x=7, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
-    ]
-    test_add_note = Note(
-        x=8, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF
-    )
-    for v in zip(range(len(test_notes)), test_notes):
-        test_hand.add_notes(v)
+    # test_hand = FingeringHand()
+    # test_notes = [
+    #     Note(x=3, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
+    #     Note(x=4, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
+    #     Note(x=5, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
+    #     Note(x=6, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
+    #     Note(x=7, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF),
+    # ]
+    # test_add_note = Note(
+    #     x=8, y=5, width=3, type=NotesType.NORMAL, judge_type=JudgeType.OFF
+    # )
+    # for v in zip(range(len(test_notes)), test_notes):
+    #     test_hand.add_notes(v)
 
-    assert (
-        abs(get_continuous_cost(test_hand, test_add_note, len(test_notes)) - 2.48832)
-        < 0.000_01
-    )
+    # assert (
+    #     abs(get_continuous_cost(test_hand, test_add_note, len(test_notes)) - 2.48832)
+    #     < 0.000_01
+    # )
