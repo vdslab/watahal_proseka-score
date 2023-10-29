@@ -1,6 +1,8 @@
 import glob
 import json
 import os
+import pprint
+import re
 from collections import defaultdict
 
 from classes import FingeringHand, Note
@@ -143,6 +145,9 @@ def _get_fingering(
 
 def main():
     file_paths = glob.glob("./proseka/datas/*.json")
+    file_paths = sorted(
+        file_paths, key=lambda path: int(re.search(r"\d+", path).group())
+    )
     save_dir = "./score/data/_json/1030/fingering"
     os.makedirs(save_dir, exist_ok=True)
     for path in file_paths[:1]:
@@ -166,6 +171,21 @@ def main():
             return set_notes
 
         fingering_dict = {"left": unique(left_notes), "right": unique(right_notes)}
+
+        # check notes count
+        fingering_notes_count = len(fingering_dict["left"]) + len(
+            fingering_dict["right"]
+        )
+        data_notes_count = 0
+        id = int(re.search(r"\d+", path).group())
+        with open(f"score/data/notes_score/score-{id}.json", "r") as f:
+            notes = json.load(f)
+            notes = list(filter(lambda note: note["hold_type"] != "middle", notes))
+            data_notes_count = len(notes)
+
+        assert (
+            fingering_notes_count == data_notes_count
+        ), f"{fingering_notes_count=}, {data_notes_count=}"
 
         name = os.path.splitext(os.path.basename(path))[0]
         with open(f"{save_dir}/{name}.json", "w", newline="") as f:
