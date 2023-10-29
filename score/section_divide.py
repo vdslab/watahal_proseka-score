@@ -2,28 +2,44 @@ import json
 
 from arrange_score import get_notes_score
 from classes import Note
-from classes.types import HoldType, NotesType
+from classes.types import HoldType
 
 
 def _get_section(file_path: str) -> list[list[Note]]:
     score: list[Note] = get_notes_score(file_path)
     section_groups: list[list[Note]] = []
     section: list[Note] = []
-    for i in range(len(score) - 1):
-        section.append(score[i])
 
-        same_y = score[i].y == score[i + 1].y
-        is_middle = (
-            score[i].hold_type == HoldType.MIDDLE
-            or score[i + 1].hold_type == HoldType.MIDDLE
-        )
-        if not same_y or is_middle:
-            # TODO: 現在のindexで最後ならcontinueでなく下の処理をしたい
+    score_by_y: dict[float, list[Note]] = dict()
+    for note in score:
+        score_by_y.setdefault(note.y, []).append(note)
+
+    score_by_y_ordered: list[tuple[float, list[Note]]] = sorted(
+        score_by_y.items(), key=lambda x: x[0]
+    )
+    for y, notes in score_by_y_ordered:
+        if len(notes) == 1:
+            section.append(notes[0])
             continue
 
-        section.append(score[i + 1])
+        section += notes
+
+        have_middle = False
+        for note in notes:
+            if note.hold_type == HoldType.MIDDLE:
+                have_middle = True
+                break
+
+        if have_middle:
+            continue
+
         section_groups.append(section)
-        section = [score[i]]
+        section = notes
+
+    if not section == score_by_y_ordered[-1][1]:
+        section_groups.append(section)
+        section.clear()
+
     return section_groups
 
 
@@ -76,19 +92,30 @@ def get_section(file_path: str) -> list[list[dict]] | None:
 
 
 def main():
-    # notes_section_155 = _get_section("score/data/m155.json")
-    notes_section_318 = _get_section("proseka/datas/song318.json")
-    for i, section in enumerate(notes_section_318):
-        if i <= 505:
+    # notes_section_318 = _get_section("proseka/datas/song318.json")
+    # for section in notes_section_318:
+    #     fin = False
+    #     for n in section:
+    #         print(n)
+    #         if n.y >= 14:
+    #             fin = True
+    #     print("===============================")
+    #     if fin:
+    #         return
+
+    notes_section_155 = _get_section("score/data/m155.json")
+    print(len(notes_section_155), len(notes_section_155[0]))
+    for section in notes_section_155:
+        fin = False
+        if section[0].y < 100 or 115 < section[0].y:
             continue
-        if section[0].y + 1 >= 105:
-            break
-        print(f"======= {i} =============")
-        for note in section:
-            if note.type == NotesType.HOLD and note.hold_type == HoldType.MIDDLE:
-                continue
-            print(f"(x, y) = ({note.x}, {note.y+1})")
-        print("======================")
+        if not (section[0].is_hold and section[1].is_hold):
+            continue
+        for n in section:
+            print(n)
+        print("===============================")
+        if fin:
+            return
 
 
 if __name__ == "__main__":

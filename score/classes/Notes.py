@@ -5,6 +5,7 @@ class Note:
     def __init__(
         self,
         *,
+        id: int,
         x: int,
         y: int,
         width: int,
@@ -14,6 +15,7 @@ class Note:
         hold_type: HoldType = HoldType.NONE,
         hole=0,
     ) -> None:
+        self.id = id
         self.x = x
         self.y = y
         self.width = width
@@ -41,6 +43,7 @@ class Note:
 
     def to_dict(self) -> dict:
         return {
+            "id": self.id,
             "x": self.x,
             "y": self.y,
             "width": self.width,
