@@ -15,11 +15,35 @@ def get_bpm_info(file_path: str) -> list[dict] | None:
         return None
 
     bpms_data = song_info["bpms"]
+    notes_data = song_info["notes"]
+    ys = [d[0] for d in notes_data]
+    duration = int(max(ys) + 1)
+
     bpms: list[dict] = []
-    for bpm in bpms_data:
-        bpms.append({"start": bpm[0], "bpm": bpm[1]})
+    for cur, next in windowed(bpms_data, 2):
+        if next is None:
+            bpms.append({"start": cur[0], "end": duration, "bpm": cur[1]})
+            continue
+
+        bpms.append({"start": cur[0], "end": next[0], "bpm": cur[1]})
 
     return bpms
+
+
+def get_bpm_change2(original_data_path: str):
+    bpms = get_bpm_info(original_data_path)
+    if bpms is None:
+        return None
+    pprint(bpms)
+
+    bpm_change_value = 0
+    for prev, cur in windowed(bpms, 2):
+        if prev is not None and cur is not None:
+            bpm_change = cur["bpm"] - prev["bpm"]
+            bpm_change_value += bpm_change * bpm_change
+            continue
+
+    return bpm_change_value
 
 
 if __name__ == "__main__":
@@ -29,18 +53,7 @@ if __name__ == "__main__":
         key=lambda path: int(re.search(r"\d+", path).group()),
     )
 
-    for path in original_data_paths[154:155]:
-        bpms = get_bpm_info(path)
-        if bpms is None:
-            print(f"Error. not found bpm info: {path}")
-            continue
+    for path in original_data_paths[:100]:
+        bpm_change_value = get_bpm_change2(path)
 
-        pprint(bpms)
-        bpm_change_value = 0
-        for prev, cur in windowed(bpms, 2):
-            print(prev, cur)
-            duration = cur["start"] - prev["start"]
-            bpm_change = cur["bpm"] - prev["bpm"]
-            bpm_change_value += bpm_change * bpm_change
-            print(f"{duration=}", f"{bpm_change=}")
         print(f"{bpm_change_value=}")
