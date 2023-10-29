@@ -15,15 +15,13 @@ class FingeringHand:
         self.__notes_index: list[int] = None
         self.__cost: float = 0
         self.pushing: bool = False
+        self.fingering: list[dict[str, int]] = None
 
     def __str__(self):
         return f"FingeringHand; cost:{self.__cost}, notes:{self.__notes}"
-    
+
     def to_dict(self):
-        return {
-            "cost": self.__cost,
-            "notes": [note.to_dict() for note in self.__notes]
-        }
+        return {"cost": self.__cost, "notes": [note.to_dict() for note in self.__notes]}
 
     @property
     def x(self):
@@ -81,12 +79,33 @@ class FingeringHand:
                 note.hold_type == HoldType.START or note.hold_type == HoldType.MIDDLE
             )
 
+    def link_fingering(self, note: Note, separate: bool = False) -> None:
+        self.__x = note.x
+        self.pushing = note.type == NotesType.HOLD and (
+            note.hold_type == HoldType.START or note.hold_type == HoldType.MIDDLE
+        )
+        if self.fingering is None:
+            self.fingering = []
+            self.fingering.append({"start": None, "end": note.id})
+            return
+
+        last_fingering = self.fingering[-1]
+        if separate:
+            self.fingering.append({"start": last_fingering["start"], "end": note.id})
+        else:
+            self.fingering.append({"start": last_fingering["end"], "end": note.id})
+
     def can_push(self, note: Note) -> bool:
-        if self.pushing:
-            if not note.is_hold:
-                return False
+        if not self.pushing:
+            return True
 
-            if note.hold_type is HoldType.START or note.hold_type is HoldType.NONE:
-                return False
+        if not note.is_hold:
+            return False
 
-        return True
+        if note.hold_type is HoldType.START or note.hold_type is HoldType.NONE:
+            return False
+
+        if self.__notes is not None and note.hole == self.__notes[-1].hole:
+            return True
+        else:
+            return False
