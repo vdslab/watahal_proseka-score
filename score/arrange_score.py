@@ -22,7 +22,7 @@ def get_notes_score(file_path: str) -> list[Note]:
 
     notes: list[Note] = []
 
-    for _note in score["notes"]:
+    for i, _note in enumerate(score["notes"]):
         x = _note[notes_explain_to_index["x"]]
         y = _note[notes_explain_to_index["y"]]
         width = _note[notes_explain_to_index["width"]]
@@ -34,6 +34,7 @@ def get_notes_score(file_path: str) -> list[Note]:
         judge_type_id = _note[notes_explain_to_index["judge_type"]]
 
         note = Note(
+            id=i,
             x=x,
             y=y,
             width=width,
@@ -52,6 +53,7 @@ def get_notes_score(file_path: str) -> list[Note]:
         # if abs(note.y - 97.25) < 0.0001:
         #     print(note)
 
+    notes = sorted(notes, key=lambda note: (note.y, note.x))
     return notes
 
 
