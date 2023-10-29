@@ -1,7 +1,6 @@
 import glob
 import json
 import re
-from pprint import pprint
 
 from more_itertools import windowed
 
@@ -34,7 +33,6 @@ def get_bpm_change2(original_data_path: str):
     bpms = get_bpm_info(original_data_path)
     if bpms is None:
         return None
-    pprint(bpms)
 
     bpm_change_value = 0
     for prev, cur in windowed(bpms, 2):
