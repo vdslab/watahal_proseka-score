@@ -38,9 +38,75 @@ sub : 譜面が「簡単」である尺度な気がする
 """
 
 import glob
+import json
+from pprint import pprint
+
+import numpy as np
+from more_itertools import windowed
+
+
+def get_normal_notes(path: str):
+    with open(path) as f:
+        score = json.load(f)
+
+    # flickが含まれる
+    normal_notes = list(filter(lambda note: note["type"] == "normal", score))
+    normal_notes = sorted(normal_notes, key=lambda note: (note["y"], note["x"]))
+    return normal_notes
+
+
+def get_x_diff_rates(notes: list[dict]):
+    duration = int(max(normal_notes, key=lambda note: note["y"])["y"] + 1)
+    hist, bins = np.histogram(
+        list(map(lambda note: note["y"], normal_notes)),
+        bins=duration,
+        range=(0, duration),
+    )
+    rot = 0
+    x_diffs = []
+
+    for h in hist:
+        range_notes = normal_notes[rot : rot + h]
+        before_same_y = False
+        x_diff = 0
+        cnt = 0
+
+        for cur, next in windowed(range_notes, 2):
+            if cur is None or next is None:
+                continue
+
+            if cur["y"] == next["y"]:
+                before_same_y = True
+                continue
+
+            if before_same_y:
+                before_same_y = False
+                continue
+
+            x_diff += abs(cur["x"] - next["x"])
+            cnt += 1
+
+        rot += h
+        x_diffs.append(x_diff / cnt if cnt != 0 else 0)
+
+    return x_diffs
+
 
 if __name__ == "__main__":
     score_file_paths = glob.glob("score/data/notes_score/*.json")
     score_file_paths = sorted(
         score_file_paths, key=lambda path: int(path.split(".")[0].split("-")[1])
     )
+
+    for path in score_file_paths[:10]:
+        # flickが含まれる
+        normal_notes = get_normal_notes(path)
+        x_diffs = get_x_diff_rates(normal_notes)
+
+        x_diff_stats = [np.mean(x_diffs), np.std(x_diffs)]
+        pprint(x_diff_stats)
+
+        # めっちゃぶれてた方がわかりやすいので平均値は大きい方がいい
+        # そのぶれ方は，全体的に散ってた方がいいので標準偏差は小さい方がいい？ので逆数
+        # かけ算だとそれっぽいので1以下にならないように1を足す
+        print("status: ", np.mean(x_diffs) * (1 + 1 / np.std(x_diffs)))
