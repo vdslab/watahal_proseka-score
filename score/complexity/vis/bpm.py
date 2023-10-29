@@ -18,13 +18,13 @@ def get_bpm_info(file_path: str) -> list[dict] | None:
     ys = [d[0] for d in notes_data]
     duration = int(max(ys) + 1)
 
+    if len(bpms_data) == 1:
+        return [{"start": 0, "end": duration, "bpm": bpms_data[0][1]}]
+
     bpms: list[dict] = []
     for cur, next in windowed(bpms_data, 2):
-        if next is None:
-            bpms.append({"start": cur[0], "end": duration, "bpm": cur[1]})
-            continue
-
         bpms.append({"start": cur[0], "end": next[0], "bpm": cur[1]})
+    bpms.append({"start": bpms_data[-1][0], "end": duration, "bpm": bpms_data[-1][1]})
 
     return bpms
 
@@ -51,7 +51,7 @@ if __name__ == "__main__":
         key=lambda path: int(re.search(r"\d+", path).group()),
     )
 
-    for path in original_data_paths[:100]:
+    for path in original_data_paths[228:229]:
         bpm_change_value = get_bpm_change2(path)
 
         print(f"{bpm_change_value=}")
