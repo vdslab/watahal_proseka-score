@@ -43,6 +43,8 @@ from pprint import pprint
 
 import numpy as np
 from more_itertools import windowed
+from vis.bpm import get_bpm_change2
+from vis.density import get_y_densities
 
 
 def get_normal_notes(path: str):
@@ -98,15 +100,35 @@ if __name__ == "__main__":
         score_file_paths, key=lambda path: int(path.split(".")[0].split("-")[1])
     )
 
-    for path in score_file_paths[:10]:
+    for path in score_file_paths[150:160]:
         # flickが含まれる
         normal_notes = get_normal_notes(path)
         x_diffs = get_x_diff_rates(normal_notes)
 
-        x_diff_stats = [np.mean(x_diffs), np.std(x_diffs)]
-        pprint(x_diff_stats)
-
         # めっちゃぶれてた方がわかりやすいので平均値は大きい方がいい
         # そのぶれ方は，全体的に散ってた方がいいので標準偏差は小さい方がいい？ので逆数
         # かけ算だとそれっぽいので1以下にならないように1を足す
-        print("status: ", np.mean(x_diffs) * (1 + 1 / np.std(x_diffs)))
+        x_diff_status = np.mean(x_diffs) * (1 + 1 / np.std(x_diffs))
+
+        id = int(path.split(".")[0].split("-")[1])
+        # 値が大きいほど変化が急なので単純でない．そのため逆数をとる
+        bpm_change = get_bpm_change2(f"proseka/datas/song{id}.json")
+        bpm_change_status = 1 / (1 + bpm_change) + 1
+
+        y_densities = get_y_densities(path)
+        # 密度は低ければ低いほど単純
+        # そのばらつきも低いほど単純
+        y_densities_status = (1 + 1 / np.mean(y_densities)) * (
+            1 + 1 / np.std(y_densities)
+        )
+
+        # x_diff_stats = [np.mean(x_diffs), np.std(x_diffs)]
+        # pprint(x_diff_stats)
+        # print(f"{x_diff_status=}")
+        # print(f"{bpm_change=}", f"{bpm_change_status=}")
+        # pprint(y_densities)
+        # print(f"{y_densities_status=}")
+
+        status = x_diff_status * bpm_change_status * y_densities_status
+        print(path, f"{status=}")
+        print()
