@@ -5,7 +5,7 @@ from pprint import pprint
 import numpy as np
 from bpm import get_bpm_by_measure, get_bpm_change2
 from density import get_y_densities_by_measure
-from more_itertools import windowed
+from x_movement import get_x_diff_rates, get_x_movement_by_measure
 
 
 def get_normal_notes(path: str):
@@ -16,43 +16,6 @@ def get_normal_notes(path: str):
     normal_notes = list(filter(lambda note: note["type"] == "normal", score))
     normal_notes = sorted(normal_notes, key=lambda note: (note["y"], note["x"]))
     return normal_notes
-
-
-def get_x_diff_rates(notes: list[dict]):
-    duration = int(max(notes, key=lambda note: note["y"])["y"] + 1)
-    hist, bins = np.histogram(
-        list(map(lambda note: note["y"], notes)),
-        bins=duration,
-        range=(0, duration),
-    )
-    rot = 0
-    x_diffs = []
-
-    for h in hist:
-        range_notes = notes[rot : rot + h]
-        before_same_y = False
-        x_diff = 0
-        cnt = 0
-
-        for cur, next in windowed(range_notes, 2):
-            if cur is None or next is None:
-                continue
-
-            if cur["y"] == next["y"]:
-                before_same_y = True
-                continue
-
-            if before_same_y:
-                before_same_y = False
-                continue
-
-            x_diff += abs(cur["x"] - next["x"])
-            cnt += 1
-
-        rot += h
-        x_diffs.append(x_diff / cnt if cnt != 0 else 0)
-
-    return x_diffs
 
 
 def calc_complexity():
