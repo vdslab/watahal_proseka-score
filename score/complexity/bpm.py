@@ -78,14 +78,14 @@ def get_bpm_info(id: int) -> list[dict] | None:
 
 def get_bpm_change2(original_data_path: str):
     id = int(re.search(r"\d+", original_data_path).group())
-    bpms = get_bpm_info(id)
+    bpms = get_bpm_by_measure(id)
     if bpms is None:
         return None
 
     bpm_change_value = 0
     for prev, cur in windowed(bpms, 2):
         if prev is not None and cur is not None:
-            bpm_change = cur["bpm"] - prev["bpm"]
+            bpm_change = abs(cur - prev)
             bpm_change_value += bpm_change * bpm_change
             continue
 
@@ -99,7 +99,7 @@ if __name__ == "__main__":
         key=lambda path: int(re.search(r"\d+", path).group()),
     )
 
-    for path in original_data_paths[228:229]:
+    for path in original_data_paths:
         bpm_change_value = get_bpm_change2(path)
 
-        print(f"{bpm_change_value=}")
+        print(path, f"{bpm_change_value=}")
