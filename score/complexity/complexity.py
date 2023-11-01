@@ -3,9 +3,10 @@ import json
 from pprint import pprint
 
 import numpy as np
-from bpm import get_bpm_change2
+from bpm import get_bpm_by_measure, get_bpm_change2, get_bpm_info
 from density import get_y_densities
 from more_itertools import windowed
+from separate_score import separete_score_by_measure
 from speed import get_duration_weighted_average_bpm
 
 
@@ -20,9 +21,9 @@ def get_normal_notes(path: str):
 
 
 def get_x_diff_rates(notes: list[dict]):
-    duration = int(max(normal_notes, key=lambda note: note["y"])["y"] + 1)
+    duration = int(max(notes, key=lambda note: note["y"])["y"] + 1)
     hist, bins = np.histogram(
-        list(map(lambda note: note["y"], normal_notes)),
+        list(map(lambda note: note["y"], notes)),
         bins=duration,
         range=(0, duration),
     )
@@ -30,7 +31,7 @@ def get_x_diff_rates(notes: list[dict]):
     x_diffs = []
 
     for h in hist:
-        range_notes = normal_notes[rot : rot + h]
+        range_notes = notes[rot : rot + h]
         before_same_y = False
         x_diff = 0
         cnt = 0
@@ -56,7 +57,7 @@ def get_x_diff_rates(notes: list[dict]):
     return x_diffs
 
 
-if __name__ == "__main__":
+def calc_complexity():
     score_file_paths = glob.glob("score/data/notes_score/*.json")
     score_file_paths = sorted(
         score_file_paths, key=lambda path: int(path.split(".")[0].split("-")[1])
@@ -118,15 +119,26 @@ if __name__ == "__main__":
     score_status = sorted(score_status, key=lambda info: info["status"], reverse=True)
     pprint(score_status)
 
-    details = sorted(details, key=lambda detail: detail["level"])
-    cnt_by_level = dict()
-    for detail in details:
-        level = detail["level"]
-        if level not in cnt_by_level:
-            cnt_by_level[level] = 0
-        cnt_by_level[level] += 1
+    # details = sorted(details, key=lambda detail: detail["level"])
+    # cnt_by_level = dict()
+    # for detail in details:
+    #     level = detail["level"]
+    #     if level not in cnt_by_level:
+    #         cnt_by_level[level] = 0
+    #     cnt_by_level[level] += 1
 
-    in_cnt_by_level = dict()
-    for i, data in enumerate(score_status):
-        level = data["level"]
-        # if i < cnt_by_level[level]
+    # in_cnt_by_level = dict()
+    # for i, data in enumerate(score_status):
+    #     level = data["level"]
+    #     # if i < cnt_by_level[level]
+
+
+if __name__ == "__main__":
+    file_path = "score/data/notes_score/score-155.json"
+    score = None
+    with open(file_path) as f:
+        score = json.load(f)
+    score = sorted(score, key=lambda note: (note["y"], note["x"]))
+    bm = get_bpm_by_measure(155)
+    print(len(bm))
+    print(bm)
