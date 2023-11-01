@@ -21,7 +21,9 @@ def get_score_pos(file_path: str) -> list[dict] | None:
     return score_pos
 
 
-def calc_y_densities(score_ys: list[int], *, separate_measure: int = 1) -> list[int]:
+def calc_y_densities_by_measure(
+    score_ys: list[int], *, separate_measure: int = 1
+) -> list[int]:
     hist, bins = np.histogram(
         score_ys,
         bins=int(max(score_ys) + 1) // separate_measure,
@@ -32,13 +34,13 @@ def calc_y_densities(score_ys: list[int], *, separate_measure: int = 1) -> list[
     return density
 
 
-def get_y_densities(notes_data_path: str, *, separate_measure: int = 1):
+def get_y_densities_by_measure(notes_data_path: str, *, separate_measure: int = 1):
     score_pos = get_score_pos(notes_data_path)
     if score_pos is None:
         return None
 
     ys = list(map(lambda note: note["y"], score_pos))
-    return calc_y_densities(ys, separate_measure=separate_measure)
+    return calc_y_densities_by_measure(ys, separate_measure=separate_measure)
 
 
 if __name__ == "__main__":
@@ -48,4 +50,4 @@ if __name__ == "__main__":
     )
 
     for path in score_file_paths[:1]:
-        pprint(get_y_densities(path))
+        pprint(get_y_densities_by_measure(path))

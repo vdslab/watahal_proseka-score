@@ -4,7 +4,7 @@ from pprint import pprint
 
 import numpy as np
 from bpm import get_bpm_by_measure, get_bpm_change2, get_bpm_info
-from density import get_y_densities
+from density import get_y_densities_by_measure
 from more_itertools import windowed
 from separate_score import separete_score_by_measure
 from speed import get_duration_weighted_average_bpm
@@ -90,7 +90,9 @@ def calc_complexity():
         # bpm_change_status = 1 / (np.log(1 + bpm_change) + 1)
         bpm_change_status = np.log(1 + bpm_change) + 1
 
-        y_densities = get_y_densities(path, separate_measure=1) * weighted_bpm
+        y_densities = (
+            get_y_densities_by_measure(path, separate_measure=1) * weighted_bpm
+        )
         # 密度は低ければ低いほど単純
         # そのばらつきも低いほど単純
         # ただしBPMが高いと単純でなくなる
