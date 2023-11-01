@@ -2,7 +2,7 @@ import json
 from pprint import pprint
 
 import numpy as np
-from vis.bpm import get_bpm_info
+from bpm import get_bpm_info
 
 
 def get_notes_count_by_measure(score) -> list[int]:
