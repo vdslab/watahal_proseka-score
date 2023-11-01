@@ -1,9 +1,8 @@
 import glob
 import json
 import re
-from pprint import pprint
 
-from bpm import get_bpm_by_measure, get_bpm_info
+from bpm import get_bpm_by_measure
 
 
 def get_display_bpm(original_path: str) -> int:

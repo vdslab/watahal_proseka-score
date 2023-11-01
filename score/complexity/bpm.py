@@ -1,6 +1,5 @@
 import glob
 import json
-import pprint
 import re
 
 from more_itertools import windowed

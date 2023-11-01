@@ -3,11 +3,9 @@ import json
 from pprint import pprint
 
 import numpy as np
-from bpm import get_bpm_by_measure, get_bpm_change2, get_bpm_info
+from bpm import get_bpm_by_measure, get_bpm_change2
 from density import get_y_densities_by_measure
 from more_itertools import windowed
-from separate_score import separete_score_by_measure
-from speed import get_duration_weighted_average_bpm
 
 
 def get_normal_notes(path: str):
@@ -63,7 +61,6 @@ def calc_complexity():
         score_file_paths, key=lambda path: int(path.split(".")[0].split("-")[1])
     )
 
-    score_info = []
     score_status = []
 
     # detail

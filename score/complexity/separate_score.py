@@ -1,5 +1,4 @@
 import json
-from pprint import pprint
 
 import numpy as np
 from bpm import get_bpm_info
