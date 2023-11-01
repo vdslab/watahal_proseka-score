@@ -29,7 +29,7 @@ def get_duration(path: str):
 
 
 def get_duration_weighted_average_bpm(original_path: str):
-    bpms = get_bpm_info(original_path)
+    bpms = get_bpm_info(int(re.search(r"\d+", original_path).group()))
     # pprint(bpms)
     if bpms is None:
         print(f"Error. not found bpm info: {original_path}")
@@ -51,7 +51,7 @@ if __name__ == "__main__":
         key=lambda path: int(re.search(r"\d+", path).group()),
     )
 
-    for path in original_data_paths[228:229]:
+    for path in original_data_paths[154:155]:
         print(path)
         duration = get_duration(path)
         print(f"{duration=}")
