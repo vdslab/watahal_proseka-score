@@ -3,7 +3,7 @@ import json
 import re
 from pprint import pprint
 
-from bpm import get_bpm_info
+from bpm import get_bpm_by_measure, get_bpm_info
 
 
 def get_display_bpm(original_path: str) -> int:
@@ -29,19 +29,13 @@ def get_duration(path: str):
 
 
 def get_duration_weighted_average_bpm(original_path: str):
-    bpms = get_bpm_info(int(re.search(r"\d+", original_path).group()))
+    bpms = get_bpm_by_measure(int(re.search(r"\d+", original_path).group()))
     # pprint(bpms)
     if bpms is None:
         print(f"Error. not found bpm info: {original_path}")
         return None
 
-    duration = get_duration(original_path)
-
-    weighted_bpm_sum = 0
-    for bpm in bpms:
-        weighted_bpm_sum += (bpm["end"] - bpm["start"]) * bpm["bpm"]
-
-    return weighted_bpm_sum / duration
+    return sum(bpms) / len(bpms)
 
 
 if __name__ == "__main__":

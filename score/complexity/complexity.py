@@ -83,25 +83,22 @@ def calc_complexity():
         x_diff_status = np.mean(x_diffs) * np.std(x_diffs)
 
         id = int(path.split(".")[0].split("-")[1])
-        weighted_bpm = get_duration_weighted_average_bpm(f"proseka/datas/song{id}.json")
+        bpms = get_bpm_by_measure(id)
+        bpm_ave = sum(bpms) / len(bpms)
 
         # 値が大きいほど変化が急なので単純でない．そのため逆数をとる
         bpm_change = get_bpm_change2(f"proseka/datas/song{id}.json")
         # bpm_change_status = 1 / (np.log(1 + bpm_change) + 1)
         bpm_change_status = np.log(1 + bpm_change) + 1
 
-        y_densities = (
-            get_y_densities_by_measure(path, separate_measure=1) * weighted_bpm
-        )
+        y_densities = get_y_densities_by_measure(path, separate_measure=1) * bpm_ave
         # 密度は低ければ低いほど単純
         # そのばらつきも低いほど単純
         # ただしBPMが高いと単純でなくなる
         # y_densities_status = 1 / (np.mean(y_densities) * np.std(y_densities))
         y_densities_status = np.mean(y_densities) * np.std(y_densities)
 
-        status = (
-            x_diff_status * bpm_change_status * y_densities_status * (1 / weighted_bpm)
-        )
+        status = x_diff_status * bpm_change_status * y_densities_status * (1 / bpm_ave)
 
         cur_detail = list(filter(lambda detail: detail["id"] == id, details))[0]
 
