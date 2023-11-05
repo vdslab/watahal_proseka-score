@@ -10,7 +10,7 @@ def get_bpm_by_measure(score_id: int) -> list[dict]:
     bpm_info_index = 0
     duration = bpm_info[-1]["end"]
     bpm_by_measure = []
-    for measure in range(duration):
+    for measure in range(duration - 1):
         bpm_sum = 0
         bpm_count = 0
         while True:
