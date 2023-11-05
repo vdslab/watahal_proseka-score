@@ -5,6 +5,7 @@ from pprint import pprint
 import numpy as np
 from bpm import get_bpm_by_measure, get_bpm_change2
 from density import get_y_densities_by_measure
+from separate_score import separate_score_by_measure
 from x_movement import get_x_diff_rates, get_x_movement_by_measure
 
 
@@ -16,6 +17,31 @@ def get_normal_notes(path: str):
     normal_notes = list(filter(lambda note: note["type"] == "normal", score))
     normal_notes = sorted(normal_notes, key=lambda note: (note["y"], note["x"]))
     return normal_notes
+
+
+def get_x_locations(score_by_measure):
+    x_locations = []
+    for measure in score_by_measure:
+        xs = [note["x"] for note in measure]
+        x_locations.append(np.std(xs) if len(xs) > 0 else 0)
+    return x_locations
+
+
+def get_push_at_once_count_averages(score_by_measure):
+    push_at_once_count_averages = []
+    for measure in score_by_measure:
+        ys = [note["y"] for note in measure]
+        ys_count = dict()
+        for y in ys:
+            if y not in ys_count:
+                ys_count[y] = 0
+            ys_count[y] += 1
+        # print(measure)
+        counts = ys_count.values()
+        push_at_once_count_averages.append(
+            sum(counts) / len(counts) if len(counts) > 0 else 0
+        )
+    return push_at_once_count_averages
 
 
 def calc_complexity():
@@ -32,33 +58,30 @@ def calc_complexity():
         details: list[dict] = json.load(f)
 
     for path in score_file_paths:
-        # flickが含まれる
-        normal_notes = get_normal_notes(path)
-        x_diffs = get_x_diff_rates(normal_notes)
-
-        # めっちゃぶれてた方がわかりやすいので平均値は大きい方がいい
-        # そのぶれ方は，全体的に散ってた方がいいので標準偏差は小さい方がいい？ので逆数
-        # かけ算だとそれっぽいので1以下にならないように1を足す
-        # x_diff_status = np.mean(x_diffs) * (1 / np.std(x_diffs))
-        x_diff_status = np.mean(x_diffs) * np.std(x_diffs)
-
         id = int(path.split(".")[0].split("-")[1])
         bpms = get_bpm_by_measure(id)
-        bpm_ave = sum(bpms) / len(bpms)
 
-        # 値が大きいほど変化が急なので単純でない．そのため逆数をとる
-        bpm_change = get_bpm_change2(f"proseka/datas/song{id}.json")
-        # bpm_change_status = 1 / (np.log(1 + bpm_change) + 1)
-        bpm_change_status = np.log(1 + bpm_change) + 1
+        score = None
+        with open(path) as f:
+            score = json.load(f)
+        score_by_measure = separate_score_by_measure(score)
+        x_locates = get_x_locations(score_by_measure)
+        push_at_once_count_averages = get_push_at_once_count_averages(score_by_measure)
+        x_moves = get_x_movement_by_measure(score_by_measure)
+        y_densities = get_y_densities_by_measure(path, separate_measure=1)
 
-        y_densities = get_y_densities_by_measure(path, separate_measure=1) * bpm_ave
-        # 密度は低ければ低いほど単純
-        # そのばらつきも低いほど単純
-        # ただしBPMが高いと単純でなくなる
-        # y_densities_status = 1 / (np.mean(y_densities) * np.std(y_densities))
-        y_densities_status = np.mean(y_densities) * np.std(y_densities)
-
-        status = x_diff_status * bpm_change_status * y_densities_status * (1 / bpm_ave)
+        status_by_measure = []
+        for i in range(len(score_by_measure)):
+            if score_by_measure[i] == []:
+                continue
+            status_by_measure.append(
+                x_moves[i]
+                + (bpms[i] / 3) * y_densities[i]
+                + bpms[i]
+                + x_locates[i]
+                + push_at_once_count_averages[i]
+            )
+        status = np.mean(status_by_measure)
 
         cur_detail = list(filter(lambda detail: detail["id"] == id, details))[0]
 
@@ -67,16 +90,12 @@ def calc_complexity():
         info["name"] = cur_detail["name"]
         info["level"] = cur_detail["level"]
         info["status"] = status
-        # info["x_diff_stats"] = x_diff_stats
-        # info["bpm_change_status"] = bpm_change_status
-        # info["weighted_bpm"] = weighted_bpm
-        # info["y_densities_stats"] = y_densities_stats
+        # info["bpm"] = np.mean(bpms)
         score_status.append(info)
-
-    # pprint(score_status)
 
     score_status = sorted(score_status, key=lambda info: info["status"], reverse=True)
     pprint(score_status)
+    # pprint(score_status[-5:])
 
     # details = sorted(details, key=lambda detail: detail["level"])
     # cnt_by_level = dict()
@@ -93,11 +112,4 @@ def calc_complexity():
 
 
 if __name__ == "__main__":
-    file_path = "score/data/notes_score/score-155.json"
-    score = None
-    with open(file_path) as f:
-        score = json.load(f)
-    score = sorted(score, key=lambda note: (note["y"], note["x"]))
-    bm = get_bpm_by_measure(155)
-    print(len(bm))
-    print(bm)
+    calc_complexity()
