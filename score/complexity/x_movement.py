@@ -2,7 +2,7 @@ import json
 
 import numpy as np
 from more_itertools import windowed
-from separate_score import separete_score_by_measure
+from separate_score import separate_score_by_measure
 
 
 def get_x_movement_by_measure(notes_by_measure: list[list[dict]]):
@@ -74,5 +74,5 @@ if __name__ == "__main__":
     if score is None:
         print("score not found")
 
-    score_by_measure = separete_score_by_measure(score)
+    score_by_measure = separate_score_by_measure(score)
     print(get_x_movement_by_measure(score_by_measure))

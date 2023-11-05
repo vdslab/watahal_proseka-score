@@ -16,7 +16,7 @@ def get_notes_count_by_measure(score) -> list[int]:
     return hist
 
 
-def separete_score_by_measure(score):
+def separate_score_by_measure(score):
     score = sorted(score, key=lambda note: (note["y"], note["x"]))
 
     notes_count_by_measure = get_notes_count_by_measure(score)
@@ -42,5 +42,5 @@ if __name__ == "__main__":
     if score is None:
         print("score not found")
 
-    score_by_measure = separete_score_by_measure(score)
+    score_by_measure = separate_score_by_measure(score)
     print(get_bpm_info(f"proseka/datas/song{score_id}.json"))
