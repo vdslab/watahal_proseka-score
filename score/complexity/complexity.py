@@ -1,5 +1,6 @@
 import glob
 import json
+import os
 from pprint import pprint
 
 import numpy as np
@@ -78,7 +79,7 @@ def calc_complexity():
                 x_moves[i]
                 + (bpms[i] / 3) * y_densities[i]
                 + bpms[i]
-                + x_locates[i]
+                + 1 / (x_locates[i] + 1)
                 + push_at_once_count_averages[i]
             )
         status = np.mean(status_by_measure)
@@ -86,7 +87,7 @@ def calc_complexity():
         cur_detail = list(filter(lambda detail: detail["id"] == id, details))[0]
 
         info = dict()
-        info["id"] = id
+        # info["id"] = id
         info["name"] = cur_detail["name"]
         info["level"] = cur_detail["level"]
         info["status"] = status
@@ -95,6 +96,9 @@ def calc_complexity():
 
     score_status = sorted(score_status, key=lambda info: info["status"], reverse=True)
     pprint(score_status)
+    os.makedirs("score/data/complexity", exist_ok=True)
+    with open("score/data/complexity/complexity.json", "w") as f:
+        score = json.dump(score_status, f, ensure_ascii=False, indent=2)
     # pprint(score_status[-5:])
 
     # details = sorted(details, key=lambda detail: detail["level"])
