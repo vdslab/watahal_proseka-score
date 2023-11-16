@@ -1,13 +1,14 @@
 import glob
 import json
+import math
 import os
 from pprint import pprint
 
 import numpy as np
-from bpm import get_bpm_by_measure, get_bpm_change2
+from bpm import get_bpm_by_measure
 from density import get_y_densities_by_measure
 from separate_score import separate_score_by_measure
-from x_movement import get_x_diff_rates, get_x_movement_by_measure
+from x_movement import get_x_movement_by_measure
 
 
 def get_normal_notes(path: str):
@@ -59,6 +60,7 @@ def calc_complexity():
         details: list[dict] = json.load(f)
 
     for path in score_file_paths:
+        print(path)
         id = int(path.split(".")[0].split("-")[1])
         bpms = get_bpm_by_measure(id)
 
@@ -87,17 +89,20 @@ def calc_complexity():
         cur_detail = list(filter(lambda detail: detail["id"] == id, details))[0]
 
         info = dict()
-        # info["id"] = id
+        info["id"] = id
         info["name"] = cur_detail["name"]
         info["level"] = cur_detail["level"]
         info["status"] = status
+        info["status_by_measure"] = [
+            0 for _ in range(math.floor(score[0]["y"]))
+        ] + status_by_measure
         # info["bpm"] = np.mean(bpms)
         score_status.append(info)
 
     score_status = sorted(score_status, key=lambda info: info["status"], reverse=True)
     pprint(score_status)
     os.makedirs("score/data/complexity", exist_ok=True)
-    with open("score/data/complexity/complexity.json", "w") as f:
+    with open("score/data/complexity/complexity_status.json", "w") as f:
         score = json.dump(score_status, f, ensure_ascii=False, indent=2)
     # pprint(score_status[-5:])
 
