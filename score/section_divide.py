@@ -40,6 +40,7 @@ def _get_section(file_path: str) -> list[list[Note]]:
         section_groups.append(section)
         section.clear()
 
+    section_groups = list(filter(lambda x: len(x) > 1, section_groups))
     return section_groups
 
 
