@@ -139,8 +139,8 @@ def _get_fingering(
         id_and_notes_by_y: dict[float, list[tuple[int, Note]]] = defaultdict(
             list[tuple[int, Note]]
         )
-        for i, note in enumerate(section):
-            id_and_notes_by_y[note.y].append((i, note))
+        for j, note in enumerate(section):
+            id_and_notes_by_y[note.y].append((j, note))
         # 左右の運指
         left, right = get_lr_fingering(id_and_notes_by_y, i == 0)
 
