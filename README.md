@@ -1,3 +1,4 @@
 # watahal_proseka-score
 
-- pythonのフォーマッタにbalckを使ってる
+- linter, formatter
+  - ruff
