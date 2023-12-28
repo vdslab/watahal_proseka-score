@@ -7,7 +7,7 @@ import sys
 from collections import defaultdict
 
 from classes import FingeringHand, Note
-from classes.types import HoldType
+from classes.types import HoldType, NotesType
 
 # from classes.types import HoldType, JudgeType, NotesType
 from constant import CONTINUOUS_COST_RATE, MAX_KEYBOARD_COUNT, PUSHED_COST
@@ -72,16 +72,37 @@ def get_lr_fingering(
     # 運指の作成
     for i, (y, notes) in enumerate(sorted_id_and_notes_by_y):
         if not first and i == 0:
+            if len(notes) >= 2:
+                edge_notes = [notes[0], notes[-1]]
+                ((l_id, l_note), (r_id, r_note)) = (
+                    (edge_notes[0], edge_notes[1])
+                    if edge_notes[0][1].x < edge_notes[1][1].x
+                    else (edge_notes[1], edge_notes[0])
+                )
+                if l_note.hold_type == HoldType.START:
+                    left.pushing = True
+                    left.hole = l_note.hole
+
+                if r_note.hold_type == HoldType.START:
+                    right.pushing = True
+                    right.hole = r_note.hole
+                continue
+
+            (id, note) = notes[0]
+            if note.hold_type != HoldType.START:
+                continue
+
+            left_cost = get_cost(left, note, id)
+            right_cost = get_cost(right, note, id)
+            if left_cost <= right_cost:
+                left.pushing = True
+                left.hole = note.hole
+            else:
+                right.pushing = True
+                right.hole = note.hole
             continue
 
         if len(notes) > 2:
-            # cprint("\tノーツが3つ以上．いったん端っこだけ取る", attrs=[Color.GREEN])
-            # notes.sort(key=lambda x: x[1].x)
-            # for i, note in notes:
-            #     if i < len(notes) // 2:
-            #         left = insert_note_to_hand(left, note, i)
-            #     else:
-            #         right = insert_note_to_hand(right, note, i)
             edge_notes = [notes[0], notes[-1]]
             ((l_id, l_note), (r_id, r_note)) = (
                 (edge_notes[0], edge_notes[1])
@@ -121,9 +142,24 @@ def get_lr_fingering(
         left_cost = get_cost(left, note, id)
         right_cost = get_cost(right, note, id)
         if left_cost <= right_cost:
-            insert_note_to_hand(left, note, id)
+            # クロスされるパターン
+            if right.x <= note.x:
+                insert_note_to_hand(right, note, id)
+                continue
+            if left.can_push(note):
+                insert_note_to_hand(left, note, id)
+            else:
+                insert_note_to_hand(right, note, id)
         else:
-            insert_note_to_hand(right, note, id)
+            # クロスされるパターン
+            if note.x <= left.x:
+                insert_note_to_hand(left, note, id)
+                continue
+
+            if right.can_push(note):
+                insert_note_to_hand(right, note, id)
+            else:
+                insert_note_to_hand(left, note, id)
 
     return left, right
 
@@ -134,7 +170,9 @@ def _get_fingering(
     notes_section = _get_section(notes_json_file_relative_path)
     fingering: list[dict[str, FingeringHand]] = []
 
+    ly = 0
     for i, section in enumerate(notes_section):
+        ly += len(section)
         # y座標ごとのノーツIDを格納
         id_and_notes_by_y: dict[float, list[tuple[int, Note]]] = defaultdict(
             list[tuple[int, Note]]
@@ -145,6 +183,8 @@ def _get_fingering(
         left, right = get_lr_fingering(id_and_notes_by_y, i == 0)
 
         fingering.append({"left": left, "right": right})
+
+    # print(ly)
     return fingering
 
 
@@ -163,22 +203,23 @@ def get_fingering(path: str):
         left_notes += [note.to_dict() for note in l_notes]
         right_notes += [note.to_dict() for note in r_notes]
 
-    def unique(notes):
-        jsonize = [json.dumps(d, sort_keys=True) for d in notes]
-        set_json = list(dict.fromkeys(jsonize))
-        set_notes = [json.loads(d) for d in set_json]
-        return set_notes
+    # def unique(notes):
+    #     jsonize = [json.dumps(d, sort_keys=True) for d in notes]
+    #     set_json = list(dict.fromkeys(jsonize))
+    #     set_notes = [json.loads(d) for d in set_json]
+    #     return set_notes
 
-    fingering_dict = {"left": unique(left_notes), "right": unique(right_notes)}
+    # fingering_dict = {"left": unique(left_notes), "right": unique(right_notes)}
+    fingering_dict = {"left": left_notes, "right": right_notes}
     return fingering_dict
 
 
 def main():
-    file_paths = glob.glob("./proseka/datas/*.json")
+    file_paths = glob.glob("./score/data/notes_score/*.json")
     file_paths = sorted(
         file_paths, key=lambda path: int(re.search(r"\d+", path).group())
     )
-    save_dir = "./score/data/_json/1030/fingering"
+    save_dir = "./score/data/_json/1228/fingering"
     os.makedirs(save_dir, exist_ok=True)
     for path in file_paths[:1]:
         fingering_dict = get_fingering(path)
@@ -191,7 +232,6 @@ def main():
         id = int(re.search(r"\d+", path).group())
         with open(f"score/data/notes_score/score-{id}.json", "r") as f:
             notes = json.load(f)
-            notes = list(filter(lambda note: note["hold_type"] != "middle", notes))
             data_notes_count = len(notes)
 
         assert (
