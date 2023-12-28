@@ -16,6 +16,7 @@ class FingeringHand:
         self.__cost: float = 0
         self.pushing: bool = False
         self.fingering: list[dict[str, int]] = None
+        self.hole: int = None
 
     def __str__(self):
         return f"FingeringHand; cost:{self.__cost}, notes:{self.__notes}"
@@ -78,6 +79,7 @@ class FingeringHand:
             self.pushing = note.type == NotesType.HOLD and (
                 note.hold_type == HoldType.START or note.hold_type == HoldType.MIDDLE
             )
+            self.hole = note.hole
 
     def link_fingering(self, note: Note, separate: bool = False) -> None:
         self.__x = note.x
@@ -105,7 +107,7 @@ class FingeringHand:
         if note.hold_type is HoldType.START or note.hold_type is HoldType.NONE:
             return False
 
-        if self.__notes is not None and note.hole == self.__notes[-1].hole:
+        if self.hole is not None and note.hole == self.hole:
             return True
         else:
             return False
